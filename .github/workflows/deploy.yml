@@ -31,6 +31,13 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Turns Pages on (with the GitHub Actions source) the first time, so a
+      # manual Settings → Pages toggle isn't required.
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Install dependencies
         run: npm ci
 
