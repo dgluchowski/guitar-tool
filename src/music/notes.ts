@@ -18,6 +18,7 @@ export const TUNINGS: Tuning[] = [
   { id: 'open-d', name: 'Open D', strings: ['D2', 'A2', 'D3', 'F#3', 'A3', 'D4'] },
   { id: 'open-e', name: 'Open E', strings: ['E2', 'B2', 'E3', 'G#3', 'B3', 'E4'] },
   { id: 'half-step-down', name: 'Half-step down (Eb)', strings: ['Eb2', 'Ab2', 'Db3', 'Gb3', 'Bb3', 'Eb4'] },
+  { id: 'd-standard', name: 'D Standard (whole step down)', strings: ['D2', 'G2', 'C3', 'F3', 'A3', 'D4'] },
 ];
 
 export const DEFAULT_TUNING = TUNINGS[0];

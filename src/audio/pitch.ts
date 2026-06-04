@@ -21,6 +21,8 @@ export interface PitchListenerOptions {
 export interface PitchListener {
   /** Stop analysis, release the mic, and close the audio context. */
   stop: () => void;
+  /** Adjust the input gain live (without restarting the mic). */
+  setGain: (value: number) => void;
 }
 
 /**
@@ -55,14 +57,10 @@ export async function startPitchListener(options: PitchListenerOptions): Promise
   const source = audioContext.createMediaStreamSource(stream);
   const analyser = audioContext.createAnalyser();
   analyser.fftSize = bufferSize;
-  if (gain !== 1) {
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = gain;
-    source.connect(gainNode);
-    gainNode.connect(analyser);
-  } else {
-    source.connect(analyser);
-  }
+  const gainNode = audioContext.createGain();
+  gainNode.gain.value = gain;
+  source.connect(gainNode);
+  gainNode.connect(analyser);
 
   const detector = PitchDetector.forFloat32Array(analyser.fftSize);
   const input = new Float32Array(detector.inputLength);
@@ -97,6 +95,9 @@ export async function startPitchListener(options: PitchListenerOptions): Promise
       source.disconnect();
       stream.getTracks().forEach((t) => t.stop());
       void audioContext.close();
+    },
+    setGain: (value: number) => {
+      gainNode.gain.value = value;
     },
   };
 }

@@ -87,6 +87,11 @@ export function useMicPitch(options: Options = {}): MicPitchState {
       });
   }, [minClarity, minFreq, maxFreq, holdMs]);
 
+  // Apply gain changes live (e.g. from a slider) without restarting the mic.
+  useEffect(() => {
+    listenerRef.current?.setGain(gain);
+  }, [gain]);
+
   // Clean up on unmount.
   useEffect(() => () => listenerRef.current?.stop(), []);
 
