@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { startPitchListener, type PitchListener } from './pitch';
 import { frequencyToNote, type DetectedNote } from '../music/notes';
 
+/** How many recent frames to median-filter, to reject single-frame octave/noise spikes. */
+const MEDIAN_WINDOW = 5;
+
 export type MicStatus = 'idle' | 'starting' | 'listening' | 'error';
 
 export interface MicPitchState {
@@ -43,10 +46,12 @@ export function useMicPitch(options: Options = {}): MicPitchState {
   const [clarity, setClarity] = useState(0);
   const listenerRef = useRef<PitchListener | null>(null);
   const lastGoodAtRef = useRef(0);
+  const recentFreqRef = useRef<number[]>([]);
 
   const stop = useCallback(() => {
     listenerRef.current?.stop();
     listenerRef.current = null;
+    recentFreqRef.current = [];
     setStatus('idle');
     setNote(null);
     setClarity(0);
@@ -62,9 +67,17 @@ export function useMicPitch(options: Options = {}): MicPitchState {
         setClarity(clarity);
         if (clarity >= minClarity && frequency >= minFreq && frequency <= maxFreq) {
           lastGoodAtRef.current = performance.now();
-          setNote(frequencyToNote(frequency));
+          // Median-filter the last few readings so a single bad frame (an octave
+          // jump or a noise spike) can't yank the displayed note around.
+          const buf = recentFreqRef.current;
+          buf.push(frequency);
+          if (buf.length > MEDIAN_WINDOW) buf.shift();
+          const sorted = [...buf].sort((a, b) => a - b);
+          const median = sorted[Math.floor(sorted.length / 2)];
+          setNote(frequencyToNote(median));
         } else if (performance.now() - lastGoodAtRef.current >= holdMs) {
           // Only clear once the hold window since the last good reading has passed.
+          recentFreqRef.current = [];
           setNote(null);
         }
         // Within the hold window we leave the previous note in place (no setNote),

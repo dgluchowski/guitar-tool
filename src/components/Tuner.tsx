@@ -133,7 +133,7 @@ export function Tuner({ tuning }: Props) {
               <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-green-500/70" />
               {hasReading && (
                 <div
-                  className={`absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full shadow transition-all ${
+                  className={`absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full shadow ${
                     inTune ? 'bg-green-500' : 'bg-amber-500'
                   }`}
                   style={{ left: `${needlePct}%` }}
