@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Note } from 'tonal';
 import { TUNINGS } from '../music/notes';
+import { parseTuningText, tuningToText } from '../music/tuningIO';
 
 const PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -22,6 +24,11 @@ function matchingPresetId(tuning: string[]): string {
 
 export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Props) {
   const selected = custom ? 'custom' : matchingPresetId(tuning);
+
+  const [showIO, setShowIO] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [ioError, setIoError] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handlePreset = (id: string) => {
     if (id === 'custom') {
@@ -52,23 +59,105 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
   const addString = () => onChange([...tuning, 'B1']);
   const removeString = () => tuning.length > 2 && onChange(tuning.slice(0, -1));
 
+  const tuningText = tuningToText(tuning);
+
+  const copyTuning = async () => {
+    try {
+      await navigator.clipboard.writeText(tuningText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard may be unavailable (e.g. insecure context); the text stays
+      // selectable in the box so the user can copy it manually.
+      setIoError('Copy failed — select the text and copy it manually.');
+    }
+  };
+
+  const importTuning = () => {
+    const parsed = parseTuningText(importText);
+    if (!parsed) {
+      setIoError('Enter at least two notes with octaves, e.g. "D2 G2 C3 F3 A3 D4".');
+      return;
+    }
+    setIoError('');
+    setImportText('');
+    // Let preset auto-detection decide whether this is a named tuning or custom.
+    onCustomChange(false);
+    onChange(parsed);
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex items-center gap-2 text-sm font-medium">
-        Tuning
-        <select
-          value={selected}
-          onChange={(e) => handlePreset(e.target.value)}
-          className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          Tuning
+          <select
+            value={selected}
+            onChange={(e) => handlePreset(e.target.value)}
+            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+          >
+            {TUNINGS.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+            <option value="custom">Custom…</option>
+          </select>
+        </label>
+
+        <button
+          type="button"
+          onClick={() => {
+            setShowIO((v) => !v);
+            setIoError('');
+          }}
+          aria-expanded={showIO}
+          className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-sm hover:bg-stone-50 dark:hover:bg-stone-700"
         >
-          {TUNINGS.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-          <option value="custom">Custom…</option>
-        </select>
-      </label>
+          {showIO ? 'Hide import/export' : 'Import / Export'}
+        </button>
+      </div>
+
+      {showIO && (
+        <div className="flex flex-col gap-2 rounded border border-stone-200 dark:border-stone-700 p-3">
+          <div className="text-xs text-stone-500">Export this tuning (low → high), or paste one to import:</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              readOnly
+              value={tuningText}
+              onFocus={(e) => e.currentTarget.select()}
+              aria-label="Current tuning as text"
+              className="min-w-0 flex-1 rounded bg-stone-100 dark:bg-stone-800 px-2 py-1 font-mono text-sm"
+            />
+            <button
+              type="button"
+              onClick={copyTuning}
+              className="rounded bg-stone-200 dark:bg-stone-700 px-2 py-1 text-sm hover:bg-stone-300 dark:hover:bg-stone-600"
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && importTuning()}
+              placeholder="Paste tuning, e.g. D2 G2 C3 F3 A3 D4"
+              aria-label="Tuning text to import"
+              className="min-w-0 flex-1 rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-sm"
+            />
+            <button
+              type="button"
+              onClick={importTuning}
+              disabled={!importText.trim()}
+              className="rounded bg-violet-600 px-2 py-1 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-40"
+            >
+              Import
+            </button>
+          </div>
+          {ioError && <div className="text-xs text-red-600 dark:text-red-400">{ioError}</div>}
+        </div>
+      )}
 
       {selected === 'custom' && (
         <div className="flex flex-col gap-2 rounded border border-stone-200 dark:border-stone-700 p-3">
