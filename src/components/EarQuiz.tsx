@@ -9,6 +9,11 @@ interface Props {
   storageKey: string;
 }
 
+function readBest(key: string): number {
+  const n = Number(localStorage.getItem(key) || 0);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
 /**
  * Generic listen-and-answer quiz: plays a prompt, offers multiple-choice
  * answers, gives instant feedback, and tracks score / streak / accuracy with a
@@ -20,28 +25,17 @@ export function EarQuiz({ make, storageKey }: Props) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [total, setTotal] = useState(0);
-  const [best, setBest] = useState(() => Number(localStorage.getItem(storageKey) || 0));
+  const [best, setBest] = useState(() => readBest(storageKey));
 
-  // New exercise / difficulty / settings → fresh question and reset the round.
-  useEffect(() => {
-    setQuestion(make());
-    setPicked(null);
-    setScore(0);
-    setStreak(0);
-    setTotal(0);
-    setBest(Number(localStorage.getItem(storageKey) || 0));
-  }, [make, storageKey]);
+  // The parent remounts this quiz (via key) when the exercise or settings change.
+  if (streak > best) setBest(streak);
 
   // Stop any audio when leaving the screen.
   useEffect(() => () => stopAll(), []);
 
-  // Persist the best streak.
   useEffect(() => {
-    if (streak > best) {
-      setBest(streak);
-      localStorage.setItem(storageKey, String(streak));
-    }
-  }, [streak, best, storageKey]);
+    localStorage.setItem(storageKey, String(best));
+  }, [best, storageKey]);
 
   const playQuestion = (q: EarQuestion) => {
     stopAll();

@@ -17,6 +17,11 @@ const CONFIRM_FRAMES = 3;
 const CENTS_TOLERANCE = 40;
 const BEST_KEY = 'gt-trainer-best';
 
+function readBest(key: string): number {
+  const n = Number(localStorage.getItem(key) || 0);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
 function pickNext(pool: string[], current: string | null): string {
   const choices = pool.filter((n) => n !== current);
   return choices[Math.floor(Math.random() * choices.length)] ?? pool[0];
@@ -28,7 +33,7 @@ export function NoteTrainer({ tuning }: Props) {
   const [target, setTarget] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [best, setBest] = useState(() => Number(localStorage.getItem(BEST_KEY) ?? 0));
+  const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [flash, setFlash] = useState(false);
 
   const matchFramesRef = useRef(0);
@@ -95,13 +100,11 @@ export function NoteTrainer({ tuning }: Props) {
     }
   }, [note, listening, target, advance]);
 
-  // Persist the best streak whenever the current streak exceeds it.
+  if (streak > best) setBest(streak);
+
   useEffect(() => {
-    if (streak > best) {
-      setBest(streak);
-      localStorage.setItem(BEST_KEY, String(streak));
-    }
-  }, [streak, best]);
+    localStorage.setItem(BEST_KEY, String(best));
+  }, [best]);
 
   const skip = () => {
     setStreak(0);

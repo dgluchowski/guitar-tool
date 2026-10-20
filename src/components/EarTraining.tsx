@@ -89,7 +89,11 @@ export function EarTraining() {
         )}
       </div>
 
-      <EarQuiz make={make} storageKey={storageKey} />
+      <EarQuiz
+        key={`${exercise.id}:${settings.difficulty}:${settings.direction}:${settings.arpeggio}:${settings.reference}`}
+        make={make}
+        storageKey={storageKey}
+      />
     </div>
   );
 }

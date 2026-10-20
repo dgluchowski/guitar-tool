@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Fretboard, { type CellMarker, type HighlightMap } from './Fretboard';
 import { notesForChord, findChordShapes, voicePitchClasses } from '../utils/engine';
 import { noteAtFret } from '../utils/notes';
@@ -23,7 +23,13 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
     [chordSymbol, tuning, numFrets],
   );
 
-  useEffect(() => setSelected(shapes.length ? 0 : null), [chordSymbol, tuning, shapes.length]);
+  // Reset to the first voicing when the chord or tuning changes, without an effect.
+  const shapeKey = `${chordSymbol}|${tuning.join(',')}|${shapes.length}`;
+  const [trackedShapeKey, setTrackedShapeKey] = useState(shapeKey);
+  if (trackedShapeKey !== shapeKey) {
+    setTrackedShapeKey(shapeKey);
+    setSelected(shapes.length ? 0 : null);
+  }
 
   const highlightedNotes: HighlightMap = useMemo(() => {
     const map: HighlightMap = {};
