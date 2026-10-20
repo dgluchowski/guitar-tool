@@ -76,6 +76,7 @@ export function Fretboard({
   const lastFinger = Math.max(hi, firstFinger);
 
   const highlights = useMemo(() => buildChromaMap(highlightedNotes), [highlightedNotes]);
+  const muted = useMemo(() => new Set(mutedStrings ?? []), [mutedStrings]);
 
   // Build columns: optional open column, then a column per finger fret.
   const fingerFrets: number[] = [];
@@ -200,18 +201,27 @@ export function Fretboard({
           );
         })}
 
-        {/* String / open-note labels in the left gutter */}
-        {tuning.map((open, i) => (
-          <text
-            key={`open-${i}`}
-            x={fx(PAD_L / 2)}
-            y={stringY(i) + 4}
-            textAnchor="middle"
-            className="fill-stone-700 dark:fill-stone-300 text-sm font-medium"
-          >
-            {Note.pitchClass(open)}
-          </text>
-        ))}
+        {/* String labels in the left gutter. A muted string shows ✕ instead of its open note. */}
+        {tuning.map((open, i) => {
+          const isMuted = muted.has(i);
+          return (
+            <text
+              key={`open-${i}`}
+              x={fx(PAD_L / 2)}
+              y={stringY(i) + (isMuted ? 5 : 4)}
+              textAnchor="middle"
+              fontSize={isMuted ? 16 : undefined}
+              fontWeight={isMuted ? 700 : undefined}
+              className={
+                isMuted
+                  ? 'fill-stone-400 dark:fill-stone-500'
+                  : 'fill-stone-700 dark:fill-stone-300 text-sm font-medium'
+              }
+            >
+              {isMuted ? '✕' : Note.pitchClass(open)}
+            </text>
+          );
+        })}
 
         {/* Note markers */}
         {tuning.map((open, i) =>
@@ -278,20 +288,6 @@ export function Fretboard({
           );
         })}
 
-        {/* Muted-string markers at the gutter */}
-        {mutedStrings?.map((s) => (
-          <text
-            key={`mute-${s}`}
-            x={fx(PAD_L / 2)}
-            y={stringY(s) + 5}
-            textAnchor="middle"
-            className="fill-stone-400 dark:fill-stone-500"
-            fontSize={16}
-            fontWeight={700}
-          >
-            ✕
-          </text>
-        ))}
       </svg>
     </div>
   );
