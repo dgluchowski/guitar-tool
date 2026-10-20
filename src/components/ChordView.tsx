@@ -107,6 +107,7 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
               <button
                 key={i}
                 onClick={() => setSelected(i)}
+                aria-pressed={selected === i}
                 className={`rounded-lg border px-3 py-2 font-mono text-sm ${
                   selected === i
                     ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'

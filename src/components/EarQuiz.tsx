@@ -113,7 +113,7 @@ export function EarQuiz({ make, storageKey }: Props) {
           })}
         </div>
 
-        <div className="min-h-6 text-center text-sm">
+        <div className="min-h-6 text-center text-sm" aria-live="polite">
           {picked != null && (
             <span className={correct ? 'font-medium text-green-600 dark:text-green-400' : 'text-stone-600 dark:text-stone-300'}>
               {correct ? 'Correct! ' : 'Not quite — '}

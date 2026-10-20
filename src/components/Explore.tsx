@@ -30,6 +30,7 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
             <button
               key={m}
               onClick={() => onChange({ mode: m })}
+              aria-pressed={mode === m}
               className={`rounded px-3 py-1 text-sm capitalize ${
                 mode === m ? 'bg-white dark:bg-stone-700 shadow font-medium' : 'text-stone-500'
               }`}

@@ -108,7 +108,7 @@ export function Tuner({ tuning }: Props) {
       </p>
 
       {error && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+        <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
           {error}
         </div>
       )}
@@ -163,6 +163,7 @@ export function Tuner({ tuning }: Props) {
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button
           onClick={() => setTargetIdx(null)}
+          aria-pressed={targetIdx == null}
           className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
             targetIdx == null
               ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300'
@@ -178,6 +179,7 @@ export function Tuner({ tuning }: Props) {
             <button
               key={i}
               onClick={() => setTargetIdx(i)}
+              aria-pressed={selected}
               className={`rounded-lg border px-3 py-2 font-mono text-sm transition-colors ${
                 selected
                   ? `${inTune ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300'}`

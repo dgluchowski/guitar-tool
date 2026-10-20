@@ -155,7 +155,11 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
               Import
             </button>
           </div>
-          {ioError && <div className="text-xs text-red-600 dark:text-red-400">{ioError}</div>}
+          {ioError && (
+            <div role="alert" className="text-xs text-red-600 dark:text-red-400">
+              {ioError}
+            </div>
+          )}
         </div>
       )}
 

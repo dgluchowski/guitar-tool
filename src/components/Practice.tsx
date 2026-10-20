@@ -25,6 +25,7 @@ export function Practice({ tuning }: Props) {
           <button
             key={t.id}
             onClick={() => setTool(t.id)}
+            aria-pressed={tool === t.id}
             className={`rounded px-4 py-1.5 text-sm font-medium ${
               tool === t.id ? 'bg-white shadow dark:bg-stone-700' : 'text-stone-500'
             }`}

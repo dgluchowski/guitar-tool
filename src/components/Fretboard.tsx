@@ -77,6 +77,29 @@ export function Fretboard({
 
   const highlights = useMemo(() => buildChromaMap(highlightedNotes), [highlightedNotes]);
   const muted = useMemo(() => new Set(mutedStrings ?? []), [mutedStrings]);
+  const description = useMemo(() => {
+    const parts = [`Guitar fretboard, ${numStrings} strings, frets ${lo} to ${hi}`];
+    if (positions?.length) {
+      const placed = positions
+        .map((p) => {
+          const open = Note.pitchClass(tuning[p.string] ?? '');
+          const who = open ? `${open} string` : `string ${p.string + 1}`;
+          return `${who}, fret ${p.fret}${p.label ? ` (${p.label})` : ''}`;
+        })
+        .join('; ');
+      parts.push(`Voicing: ${placed}`);
+    } else if (highlightedNotes && Object.keys(highlightedNotes).length > 0) {
+      const notes = Object.entries(highlightedNotes)
+        .map(([name, h]) => (h.label ? `${name} (${h.label})` : name))
+        .join(', ');
+      parts.push(`Highlighted notes: ${notes}`);
+    }
+    if (mutedStrings?.length) {
+      const names = mutedStrings.map((s) => Note.pitchClass(tuning[s] ?? '') || `string ${s + 1}`);
+      parts.push(`Muted: ${names.join(', ')}`);
+    }
+    return parts.join('. ');
+  }, [hi, highlightedNotes, lo, mutedStrings, numStrings, positions, tuning]);
 
   // Build columns: optional open column, then a column per finger fret.
   const fingerFrets: number[] = [];
@@ -120,7 +143,7 @@ export function Fretboard({
         height={totalHeight}
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
         role="img"
-        aria-label={`Guitar fretboard, ${numStrings} strings, frets ${lo} to ${hi}`}
+        aria-label={description}
         className="max-w-full"
       >
         {/* Fretboard background */}
