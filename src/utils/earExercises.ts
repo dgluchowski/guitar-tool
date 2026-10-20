@@ -1,6 +1,6 @@
 import { Note } from 'tonal';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { ROOTS } from '../music/catalog';
+import { notesForChord, voicePitchClasses } from './engine';
+import { ROOTS } from './catalog';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Direction = 'asc' | 'desc' | 'harmonic';

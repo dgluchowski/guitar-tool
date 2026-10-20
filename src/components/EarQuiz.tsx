@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { EarQuestion } from '../ear/exercises';
-import { playChord, playSequence, stopAll } from '../music/audio';
+import type { EarQuestion } from '../utils/earExercises';
+import { playChord, playSequence, stopAll } from '../utils/audio';
 
 interface Props {
   /** Generates a fresh question. Its identity changes when settings change. */

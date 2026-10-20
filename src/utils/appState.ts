@@ -1,5 +1,5 @@
-import { DEFAULT_TUNING } from '../music/notes';
-import type { KeyMode } from '../music/keys';
+import { DEFAULT_TUNING } from './notes';
+import type { KeyMode } from './keys';
 
 export type View = 'explore' | 'dictionary' | 'progressions' | 'genres' | 'practice';
 export type SelectionMode = 'chord' | 'scale';

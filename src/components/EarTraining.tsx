@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import EarQuiz from './EarQuiz';
-import { EXERCISES } from '../ear/exercises';
-import type { Difficulty, Direction, EarSettings } from '../ear/exercises';
+import { EXERCISES } from '../utils/earExercises';
+import type { Difficulty, Direction, EarSettings } from '../utils/earExercises';
 
 const DIFF_LABELS: Record<Difficulty, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 

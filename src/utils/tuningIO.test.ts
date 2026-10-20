@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Note } from 'tonal';
-import { parseTuningText, tuningToText } from '../music/tuningIO';
-import { TUNINGS } from '../music/notes';
+import { parseTuningText, tuningToText } from './tuningIO';
+import { TUNINGS } from './notes';
 
 describe('tuning import/export', () => {
   it('exports a tuning as space-separated notes', () => {

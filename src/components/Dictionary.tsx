@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import ChordView from './ChordView';
-import { ROOTS, CHORD_QUALITIES } from '../music/catalog';
-import { diatonicChords, type KeyMode } from '../music/keys';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { playChord, stopAll } from '../music/audio';
+import { ROOTS, CHORD_QUALITIES } from '../utils/catalog';
+import { diatonicChords, type KeyMode } from '../utils/keys';
+import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { playChord, stopAll } from '../utils/audio';
 
 interface Props {
   root: string;

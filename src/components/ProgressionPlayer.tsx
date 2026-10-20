@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { resolveProgression, type KeyMode } from '../music/keys';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { playProgression, stopAll } from '../music/audio';
+import { resolveProgression, type KeyMode } from '../utils/keys';
+import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { playProgression, stopAll } from '../utils/audio';
 
 interface Props {
   numerals: string[];

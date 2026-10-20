@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useMicPitch } from '../audio/useMicPitch';
-import { midiOf, noteToFrequency } from '../music/notes';
+import { useMicPitch } from '../hooks/useMicPitch';
+import { midiOf, noteToFrequency } from '../utils/notes';
 
 interface Props {
   /** Current tuning's open-string notes, low → high (e.g. ["E2",...]). */

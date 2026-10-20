@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Note } from 'tonal';
-import { pitchClassAtFret, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../music/notes';
-import { contrastText } from '../music/colors';
+import { pitchClassAtFret, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../utils/notes';
+import { contrastText } from '../utils/colors';
 
 export type Highlight = {
   /** Fill color for the marker. */

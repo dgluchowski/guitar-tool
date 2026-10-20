@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Note } from 'tonal';
-import { TUNINGS } from '../music/notes';
-import { parseTuningText, tuningToText } from '../music/tuningIO';
+import { TUNINGS } from '../utils/notes';
+import { parseTuningText, tuningToText } from '../utils/tuningIO';
 
 const PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 

@@ -1,4 +1,4 @@
-import type { KeyMode } from '../music/keys';
+import type { KeyMode } from '../utils/keys';
 import data from './genres.json';
 
 /** A tuning suggested for a genre (low → high string pitches, e.g. ["E2",...]). */

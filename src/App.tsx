@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import TuningSelector from './components/TuningSelector';
-import { splitChordSymbol } from './music/catalog';
+import { splitChordSymbol } from './utils/catalog';
 
 // Lazy-load tab views so each is a separate chunk and the initial load stays small.
 const Explore = lazy(() => import('./components/Explore'));
@@ -8,8 +8,8 @@ const Dictionary = lazy(() => import('./components/Dictionary'));
 const Progressions = lazy(() => import('./components/Progressions'));
 const Genres = lazy(() => import('./components/Genres'));
 const Practice = lazy(() => import('./components/Practice'));
-import { DEFAULT_STATE, decodeState, encodeState } from './state/appState';
-import type { AppState, View } from './state/appState';
+import { DEFAULT_STATE, decodeState, encodeState } from './utils/appState';
+import type { AppState, View } from './utils/appState';
 
 const MAX_FRETS = 15;
 const TABS: { id: View; label: string }[] = [

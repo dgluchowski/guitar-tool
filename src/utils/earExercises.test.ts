@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { EXERCISES, INTERVAL_NAMES, DEGREE_LABELS, type EarSettings } from './exercises';
-import { midiOf } from '../music/notes';
+import { EXERCISES, INTERVAL_NAMES, DEGREE_LABELS, type EarSettings } from './earExercises';
+import { midiOf } from './notes';
 
 const base: EarSettings = { difficulty: 'easy', direction: 'asc', arpeggio: false, reference: true };
 const ex = (id: string) => EXERCISES.find((e) => e.id === id)!;

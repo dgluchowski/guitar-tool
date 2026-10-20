@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import ChordView from './ChordView';
-import { ROOTS } from '../music/catalog';
-import { resolveProgression, type KeyMode } from '../music/keys';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { playProgression, stopAll } from '../music/audio';
+import { ROOTS } from '../utils/catalog';
+import { resolveProgression, type KeyMode } from '../utils/keys';
+import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { playProgression, stopAll } from '../utils/audio';
 
 interface Props {
   tuning: string[];

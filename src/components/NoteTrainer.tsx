@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Fretboard, { type HighlightMap } from './Fretboard';
-import { useMicPitch } from '../audio/useMicPitch';
-import { samePitchClass } from '../music/notes';
+import { useMicPitch } from '../hooks/useMicPitch';
+import { samePitchClass } from '../utils/notes';
 
 interface Props {
   /** Current tuning's open-string notes, used for the optional fretboard hint. */

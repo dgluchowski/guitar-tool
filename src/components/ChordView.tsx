@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Fretboard, { type CellMarker, type HighlightMap } from './Fretboard';
-import { notesForChord, findChordShapes, voicePitchClasses } from '../music/engine';
-import { noteAtFret } from '../music/notes';
-import { colorForDegree } from '../music/colors';
-import { playChord, stopAll } from '../music/audio';
+import { notesForChord, findChordShapes, voicePitchClasses } from '../utils/engine';
+import { noteAtFret } from '../utils/notes';
+import { colorForDegree } from '../utils/colors';
+import { playChord, stopAll } from '../utils/audio';
 
 interface Props {
   chordSymbol: string;

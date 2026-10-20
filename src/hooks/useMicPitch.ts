@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { startPitchListener, type PitchListener } from './pitch';
-import { frequencyToNote, type DetectedNote } from '../music/notes';
+import { startPitchListener, type PitchListener } from '../utils/pitch';
+import { frequencyToNote, type DetectedNote } from '../utils/notes';
 
 /** How many recent frames to median-filter, to reject single-frame octave/noise spikes. */
 const MEDIAN_WINDOW = 5;

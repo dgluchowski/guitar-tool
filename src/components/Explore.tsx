@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import ChordView from './ChordView';
 import ScaleView from './ScaleView';
-import { CHORD_QUALITIES, ROOTS, SCALE_TYPES } from '../music/catalog';
-import { stopAll } from '../music/audio';
-import type { SelectionMode } from '../state/appState';
+import { CHORD_QUALITIES, ROOTS, SCALE_TYPES } from '../utils/catalog';
+import { stopAll } from '../utils/audio';
+import type { SelectionMode } from '../utils/appState';
 
 interface Props {
   mode: SelectionMode;
