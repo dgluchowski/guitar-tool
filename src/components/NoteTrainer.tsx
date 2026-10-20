@@ -33,6 +33,12 @@ export function NoteTrainer({ tuning }: Props) {
 
   const matchFramesRef = useRef(0);
   const lockedRef = useRef(false);
+  const pendingTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearPending = () => {
+    pendingTimers.current.forEach(clearTimeout);
+    pendingTimers.current = [];
+  };
 
   // Boost quiet sources and accept slightly lower clarity, matching the tuner.
   const { status, error, note, start, stop } = useMicPitch({ minClarity: 0.85, gain: 5 });
@@ -40,12 +46,15 @@ export function NoteTrainer({ tuning }: Props) {
   const pool = naturalsOnly ? NATURALS : CHROMATIC;
 
   const advance = useCallback(() => {
+    pendingTimers.current.forEach(clearTimeout);
+    pendingTimers.current = [];
     matchFramesRef.current = 0;
     lockedRef.current = false;
     setTarget((cur) => pickNext(pool, cur));
   }, [pool]);
 
   const begin = () => {
+    clearPending();
     setScore(0);
     setStreak(0);
     setTarget(pickNext(pool, null));
@@ -55,9 +64,18 @@ export function NoteTrainer({ tuning }: Props) {
   };
 
   const end = () => {
+    clearPending();
     stop();
     setTarget(null);
   };
+
+  useEffect(
+    () => () => {
+      pendingTimers.current.forEach(clearTimeout);
+      pendingTimers.current = [];
+    },
+    [],
+  );
 
   // Evaluate each detected-note frame against the target.
   useEffect(() => {
@@ -69,8 +87,8 @@ export function NoteTrainer({ tuning }: Props) {
         setScore((s) => s + 1);
         setStreak((st) => st + 1);
         setFlash(true);
-        setTimeout(() => setFlash(false), 450);
-        setTimeout(advance, 650);
+        pendingTimers.current.push(setTimeout(() => setFlash(false), 450));
+        pendingTimers.current.push(setTimeout(advance, 650));
       }
     } else if (note && !samePitchClass(note.pc, target)) {
       matchFramesRef.current = 0;
