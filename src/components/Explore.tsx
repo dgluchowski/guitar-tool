@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import ChordView from './ChordView';
 import ScaleView from './ScaleView';
-import { CHORD_QUALITIES, ROOTS, SCALE_TYPES } from '../music/catalog';
-import { stopAll } from '../music/audio';
-import type { SelectionMode } from '../state/appState';
+import { CHORD_QUALITIES, ROOTS, SCALE_TYPES } from '../utils/catalog';
+import { stopAll } from '../utils/audio';
+import type { SelectionMode } from '../utils/appState';
 
 interface Props {
   mode: SelectionMode;
@@ -30,6 +30,7 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
             <button
               key={m}
               onClick={() => onChange({ mode: m })}
+              aria-pressed={mode === m}
               className={`rounded px-3 py-1 text-sm capitalize ${
                 mode === m ? 'bg-white dark:bg-stone-700 shadow font-medium' : 'text-stone-500'
               }`}

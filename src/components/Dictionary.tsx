@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import ChordView from './ChordView';
-import { ROOTS, CHORD_QUALITIES } from '../music/catalog';
-import { diatonicChords, type KeyMode } from '../music/keys';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { playChord, stopAll } from '../music/audio';
+import { ROOTS, CHORD_QUALITIES } from '../utils/catalog';
+import { diatonicChords, type KeyMode } from '../utils/keys';
+import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { playChord, stopAll } from '../utils/audio';
 
 interface Props {
   root: string;
@@ -102,6 +102,7 @@ export function Dictionary({
               <button
                 key={d.roman}
                 onClick={() => select(d.symbol)}
+                aria-pressed={d.symbol === currentSymbol}
                 className={`flex flex-col items-center rounded-lg border px-4 py-2 ${
                   d.symbol === currentSymbol
                     ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'
@@ -137,6 +138,7 @@ export function Dictionary({
                       <td key={q.label} className="p-0.5">
                         <button
                           onClick={() => select(symbol)}
+                          aria-pressed={symbol === currentSymbol}
                           className={`w-full rounded px-2 py-1 font-mono ${
                             symbol === currentSymbol
                               ? 'bg-violet-600 text-white'

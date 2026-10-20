@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { resolveProgression, type KeyMode } from '../music/keys';
-import { notesForChord, voicePitchClasses } from '../music/engine';
-import { playProgression, stopAll } from '../music/audio';
+import { resolveProgression, type KeyMode } from '../utils/keys';
+import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { playProgression, stopAll } from '../utils/audio';
 
 interface Props {
   numerals: string[];
@@ -33,15 +33,16 @@ export function ProgressionPlayer({
     [numerals, keyTonic, keyMode],
   );
 
-  // Stop audio if the progression changes or the component unmounts.
-  useEffect(() => {
-    return () => stopAll();
-  }, []);
-  useEffect(() => {
-    stopAll();
+  const progressionKey = `${keyTonic}|${keyMode}|${numerals.join('\u0001')}`;
+  const [trackedKey, setTrackedKey] = useState(progressionKey);
+  if (trackedKey !== progressionKey) {
+    setTrackedKey(progressionKey);
     setIsPlaying(false);
     setPlayingIndex(-1);
-  }, [numerals, keyTonic, keyMode]);
+  }
+
+  // Stop audio when the progression changes or the player unmounts.
+  useEffect(() => () => stopAll(), [progressionKey]);
 
   const play = async () => {
     const steps = chords.map((c) => {

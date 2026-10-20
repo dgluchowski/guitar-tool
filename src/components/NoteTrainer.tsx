@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Fretboard, { type HighlightMap } from './Fretboard';
-import { useMicPitch } from '../audio/useMicPitch';
-import { samePitchClass } from '../music/notes';
+import { useMicPitch } from '../hooks/useMicPitch';
+import { samePitchClass } from '../utils/notes';
 
 interface Props {
   /** Current tuning's open-string notes, used for the optional fretboard hint. */
@@ -17,6 +17,11 @@ const CONFIRM_FRAMES = 3;
 const CENTS_TOLERANCE = 40;
 const BEST_KEY = 'gt-trainer-best';
 
+function readBest(key: string): number {
+  const n = Number(localStorage.getItem(key) || 0);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
 function pickNext(pool: string[], current: string | null): string {
   const choices = pool.filter((n) => n !== current);
   return choices[Math.floor(Math.random() * choices.length)] ?? pool[0];
@@ -28,11 +33,17 @@ export function NoteTrainer({ tuning }: Props) {
   const [target, setTarget] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [best, setBest] = useState(() => Number(localStorage.getItem(BEST_KEY) ?? 0));
+  const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [flash, setFlash] = useState(false);
 
   const matchFramesRef = useRef(0);
   const lockedRef = useRef(false);
+  const pendingTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearPending = () => {
+    pendingTimers.current.forEach(clearTimeout);
+    pendingTimers.current = [];
+  };
 
   // Boost quiet sources and accept slightly lower clarity, matching the tuner.
   const { status, error, note, start, stop } = useMicPitch({ minClarity: 0.85, gain: 5 });
@@ -40,12 +51,15 @@ export function NoteTrainer({ tuning }: Props) {
   const pool = naturalsOnly ? NATURALS : CHROMATIC;
 
   const advance = useCallback(() => {
+    pendingTimers.current.forEach(clearTimeout);
+    pendingTimers.current = [];
     matchFramesRef.current = 0;
     lockedRef.current = false;
     setTarget((cur) => pickNext(pool, cur));
   }, [pool]);
 
   const begin = () => {
+    clearPending();
     setScore(0);
     setStreak(0);
     setTarget(pickNext(pool, null));
@@ -55,9 +69,18 @@ export function NoteTrainer({ tuning }: Props) {
   };
 
   const end = () => {
+    clearPending();
     stop();
     setTarget(null);
   };
+
+  useEffect(
+    () => () => {
+      pendingTimers.current.forEach(clearTimeout);
+      pendingTimers.current = [];
+    },
+    [],
+  );
 
   // Evaluate each detected-note frame against the target.
   useEffect(() => {
@@ -69,21 +92,19 @@ export function NoteTrainer({ tuning }: Props) {
         setScore((s) => s + 1);
         setStreak((st) => st + 1);
         setFlash(true);
-        setTimeout(() => setFlash(false), 450);
-        setTimeout(advance, 650);
+        pendingTimers.current.push(setTimeout(() => setFlash(false), 450));
+        pendingTimers.current.push(setTimeout(advance, 650));
       }
     } else if (note && !samePitchClass(note.pc, target)) {
       matchFramesRef.current = 0;
     }
   }, [note, listening, target, advance]);
 
-  // Persist the best streak whenever the current streak exceeds it.
+  if (streak > best) setBest(streak);
+
   useEffect(() => {
-    if (streak > best) {
-      setBest(streak);
-      localStorage.setItem(BEST_KEY, String(streak));
-    }
-  }, [streak, best]);
+    localStorage.setItem(BEST_KEY, String(best));
+  }, [best]);
 
   const skip = () => {
     setStreak(0);
@@ -122,7 +143,7 @@ export function NoteTrainer({ tuning }: Props) {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+        <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
           {error}
         </div>
       )}

@@ -35,6 +35,9 @@ export async function ensureAudio(): Promise<void> {
  * "stop" and rapid presses stack on top of each other.
  */
 let timers: ReturnType<typeof setTimeout>[] = [];
+// Bumped by stopAll so a play call that is still awaiting the audio context
+// does not sound after the user has already stopped.
+let playbackEpoch = 0;
 
 function later(ms: number, fn: () => void): void {
   timers.push(setTimeout(fn, Math.max(0, ms)));
@@ -42,6 +45,7 @@ function later(ms: number, fn: () => void): void {
 
 /** Stop all sound and cancel any not-yet-sounded notes / callbacks. */
 export function stopAll(): void {
+  playbackEpoch++;
   timers.forEach(clearTimeout);
   timers = [];
   synth?.releaseAll();
@@ -50,7 +54,9 @@ export function stopAll(): void {
 /** Play a block chord. `notes` are note names with octave, e.g. ["C3","E3","G3"]. Layers on top of anything already ringing — call stopAll first if you don't want that. */
 export async function playChord(notes: string[], duration = '1n'): Promise<void> {
   if (!notes.length) return;
+  const epoch = playbackEpoch;
   await ensureAudio();
+  if (epoch !== playbackEpoch) return;
   synth!.triggerAttackRelease(notes, duration, Tone!.now() + 0.02);
 }
 
@@ -59,9 +65,13 @@ export async function playSequence(notes: string[], noteSeconds = 0.32): Promise
   if (!notes.length) return;
   await ensureAudio();
   stopAll();
+  const epoch = playbackEpoch;
   const ms = noteSeconds * 1000;
   notes.forEach((n, i) => {
-    later(i * ms, () => synth!.triggerAttackRelease(n, noteSeconds * 0.9, Tone!.now() + 0.01));
+    later(i * ms, () => {
+      if (epoch !== playbackEpoch) return;
+      synth!.triggerAttackRelease(n, noteSeconds * 0.9, Tone!.now() + 0.01);
+    });
   });
 }
 
@@ -79,7 +89,7 @@ export interface PlayProgressionOptions {
 
 /**
  * Play a chord progression with a metronome click on every beat.
- * Returns a stop function.
+ * stopAll() cancels anything that has not sounded yet.
  */
 export async function playProgression(
   steps: ProgressionStep[],
@@ -88,22 +98,31 @@ export async function playProgression(
   if (!steps.length) return;
   await ensureAudio();
   stopAll();
+  const epoch = playbackEpoch;
 
   const secPerBeat = 60 / bpm;
   const chordMs = beatsPerChord * secPerBeat * 1000;
   const beatMs = secPerBeat * 1000;
 
+  const current = () => epoch === playbackEpoch;
+
   steps.forEach((step, i) => {
     later(i * chordMs, () => {
+      if (!current()) return;
       if (step.notes.length) {
         synth!.triggerAttackRelease(step.notes, beatsPerChord * secPerBeat * 0.95, Tone!.now() + 0.01);
       }
       onStep?.(i);
     });
     for (let b = 0; b < beatsPerChord; b++) {
-      later(i * chordMs + b * beatMs, () => click!.triggerAttackRelease(b === 0 ? 'C2' : 'G1', '32n', Tone!.now() + 0.01));
+      later(i * chordMs + b * beatMs, () => {
+        if (!current()) return;
+        click!.triggerAttackRelease(b === 0 ? 'C2' : 'G1', '32n', Tone!.now() + 0.01);
+      });
     }
   });
 
-  later(steps.length * chordMs + 100, () => onStep?.(-1));
+  later(steps.length * chordMs + 100, () => {
+    if (current()) onStep?.(-1);
+  });
 }

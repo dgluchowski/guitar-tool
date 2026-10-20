@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
-import type { EarQuestion } from '../ear/exercises';
-import { playChord, playSequence, stopAll } from '../music/audio';
+import type { EarQuestion } from '../utils/earExercises';
+import { playChord, playSequence, stopAll } from '../utils/audio';
 
 interface Props {
   /** Generates a fresh question. Its identity changes when settings change. */
   make: () => EarQuestion;
   /** localStorage key for the best-streak record (per exercise + difficulty). */
   storageKey: string;
+}
+
+function readBest(key: string): number {
+  const n = Number(localStorage.getItem(key) || 0);
+  return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
 /**
@@ -20,28 +25,17 @@ export function EarQuiz({ make, storageKey }: Props) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [total, setTotal] = useState(0);
-  const [best, setBest] = useState(() => Number(localStorage.getItem(storageKey) || 0));
+  const [best, setBest] = useState(() => readBest(storageKey));
 
-  // New exercise / difficulty / settings → fresh question and reset the round.
-  useEffect(() => {
-    setQuestion(make());
-    setPicked(null);
-    setScore(0);
-    setStreak(0);
-    setTotal(0);
-    setBest(Number(localStorage.getItem(storageKey) || 0));
-  }, [make, storageKey]);
+  // The parent remounts this quiz (via key) when the exercise or settings change.
+  if (streak > best) setBest(streak);
 
   // Stop any audio when leaving the screen.
   useEffect(() => () => stopAll(), []);
 
-  // Persist the best streak.
   useEffect(() => {
-    if (streak > best) {
-      setBest(streak);
-      localStorage.setItem(storageKey, String(streak));
-    }
-  }, [streak, best, storageKey]);
+    localStorage.setItem(storageKey, String(best));
+  }, [best, storageKey]);
 
   const playQuestion = (q: EarQuestion) => {
     stopAll();
@@ -113,7 +107,7 @@ export function EarQuiz({ make, storageKey }: Props) {
           })}
         </div>
 
-        <div className="min-h-6 text-center text-sm">
+        <div className="min-h-6 text-center text-sm" aria-live="polite">
           {picked != null && (
             <span className={correct ? 'font-medium text-green-600 dark:text-green-400' : 'text-stone-600 dark:text-stone-300'}>
               {correct ? 'Correct! ' : 'Not quite — '}

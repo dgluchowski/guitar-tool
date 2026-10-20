@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Note } from 'tonal';
-import { pitchClassAtFret, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../music/notes';
-import { contrastText } from '../music/colors';
+import { pitchClassAtFret, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../utils/notes';
+import { contrastText } from '../utils/colors';
 
 export type Highlight = {
   /** Fill color for the marker. */
@@ -76,6 +76,30 @@ export function Fretboard({
   const lastFinger = Math.max(hi, firstFinger);
 
   const highlights = useMemo(() => buildChromaMap(highlightedNotes), [highlightedNotes]);
+  const muted = useMemo(() => new Set(mutedStrings ?? []), [mutedStrings]);
+  const description = useMemo(() => {
+    const parts = [`Guitar fretboard, ${numStrings} strings, frets ${lo} to ${hi}`];
+    if (positions?.length) {
+      const placed = positions
+        .map((p) => {
+          const open = Note.pitchClass(tuning[p.string] ?? '');
+          const who = open ? `${open} string` : `string ${p.string + 1}`;
+          return `${who}, fret ${p.fret}${p.label ? ` (${p.label})` : ''}`;
+        })
+        .join('; ');
+      parts.push(`Voicing: ${placed}`);
+    } else if (highlightedNotes && Object.keys(highlightedNotes).length > 0) {
+      const notes = Object.entries(highlightedNotes)
+        .map(([name, h]) => (h.label ? `${name} (${h.label})` : name))
+        .join(', ');
+      parts.push(`Highlighted notes: ${notes}`);
+    }
+    if (mutedStrings?.length) {
+      const names = mutedStrings.map((s) => Note.pitchClass(tuning[s] ?? '') || `string ${s + 1}`);
+      parts.push(`Muted: ${names.join(', ')}`);
+    }
+    return parts.join('. ');
+  }, [hi, highlightedNotes, lo, mutedStrings, numStrings, positions, tuning]);
 
   // Build columns: optional open column, then a column per finger fret.
   const fingerFrets: number[] = [];
@@ -119,7 +143,7 @@ export function Fretboard({
         height={totalHeight}
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
         role="img"
-        aria-label={`Guitar fretboard, ${numStrings} strings, frets ${lo} to ${hi}`}
+        aria-label={description}
         className="max-w-full"
       >
         {/* Fretboard background */}
@@ -200,18 +224,27 @@ export function Fretboard({
           );
         })}
 
-        {/* String / open-note labels in the left gutter */}
-        {tuning.map((open, i) => (
-          <text
-            key={`open-${i}`}
-            x={fx(PAD_L / 2)}
-            y={stringY(i) + 4}
-            textAnchor="middle"
-            className="fill-stone-700 dark:fill-stone-300 text-sm font-medium"
-          >
-            {Note.pitchClass(open)}
-          </text>
-        ))}
+        {/* String labels in the left gutter. A muted string shows ✕ instead of its open note. */}
+        {tuning.map((open, i) => {
+          const isMuted = muted.has(i);
+          return (
+            <text
+              key={`open-${i}`}
+              x={fx(PAD_L / 2)}
+              y={stringY(i) + (isMuted ? 5 : 4)}
+              textAnchor="middle"
+              fontSize={isMuted ? 16 : undefined}
+              fontWeight={isMuted ? 700 : undefined}
+              className={
+                isMuted
+                  ? 'fill-stone-400 dark:fill-stone-500'
+                  : 'fill-stone-700 dark:fill-stone-300 text-sm font-medium'
+              }
+            >
+              {isMuted ? '✕' : Note.pitchClass(open)}
+            </text>
+          );
+        })}
 
         {/* Note markers */}
         {tuning.map((open, i) =>
@@ -278,20 +311,6 @@ export function Fretboard({
           );
         })}
 
-        {/* Muted-string markers at the gutter */}
-        {mutedStrings?.map((s) => (
-          <text
-            key={`mute-${s}`}
-            x={fx(PAD_L / 2)}
-            y={stringY(s) + 5}
-            textAnchor="middle"
-            className="fill-stone-400 dark:fill-stone-500"
-            fontSize={16}
-            fontWeight={700}
-          >
-            ✕
-          </text>
-        ))}
       </svg>
     </div>
   );

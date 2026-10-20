@@ -1,5 +1,6 @@
-import { DEFAULT_TUNING } from '../music/notes';
-import type { KeyMode } from '../music/keys';
+import { canonicalRoot } from './catalog';
+import { DEFAULT_TUNING } from './notes';
+import type { KeyMode } from './keys';
 
 export type View = 'explore' | 'dictionary' | 'progressions' | 'genres' | 'practice';
 export type SelectionMode = 'chord' | 'scale';
@@ -68,10 +69,18 @@ export function decodeState(hash: string): Partial<AppState> {
   if (p.get('lh') === '1') out.leftHanded = true;
   const m = p.get('m');
   if (m === 'chord' || m === 'scale') out.mode = m;
-  if (p.get('r')) out.root = p.get('r')!;
+  const root = p.get('r');
+  if (root) {
+    const spelled = canonicalRoot(root);
+    if (spelled) out.root = spelled;
+  }
   if (p.get('q') != null) out.quality = p.get('q')!;
   if (p.get('sc')) out.scaleType = p.get('sc')!;
-  if (p.get('kt')) out.keyTonic = p.get('kt')!;
+  const keyTonic = p.get('kt');
+  if (keyTonic) {
+    const spelled = canonicalRoot(keyTonic);
+    if (spelled) out.keyTonic = spelled;
+  }
   const km = p.get('km');
   if (km === 'major' || km === 'minor') out.keyMode = km;
   const prog = p.get('p');

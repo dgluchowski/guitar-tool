@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { startPitchListener, type PitchListener } from './pitch';
-import { frequencyToNote, type DetectedNote } from '../music/notes';
+import { startPitchListener, type PitchListener } from '../utils/pitch';
+import { frequencyToNote, type DetectedNote } from '../utils/notes';
 
 /** How many recent frames to median-filter, to reject single-frame octave/noise spikes. */
 const MEDIAN_WINDOW = 5;
@@ -47,8 +47,14 @@ export function useMicPitch(options: Options = {}): MicPitchState {
   const listenerRef = useRef<PitchListener | null>(null);
   const lastGoodAtRef = useRef(0);
   const recentFreqRef = useRef<number[]>([]);
+  // Bumped on stop/unmount so a start() that is still waiting on mic permission
+  // can release the stream instead of leaving it open.
+  const sessionRef = useRef(0);
+  const startingRef = useRef(false);
 
   const stop = useCallback(() => {
+    sessionRef.current += 1;
+    startingRef.current = false;
     listenerRef.current?.stop();
     listenerRef.current = null;
     recentFreqRef.current = [];
@@ -58,12 +64,15 @@ export function useMicPitch(options: Options = {}): MicPitchState {
   }, []);
 
   const start = useCallback(() => {
-    if (listenerRef.current) return;
+    if (listenerRef.current || startingRef.current) return;
+    startingRef.current = true;
+    const session = ++sessionRef.current;
     setStatus('starting');
     setError(null);
     startPitchListener({
       gain,
       onReading: ({ frequency, clarity }) => {
+        if (session !== sessionRef.current) return;
         setClarity(clarity);
         if (clarity >= minClarity && frequency >= minFreq && frequency <= maxFreq) {
           lastGoodAtRef.current = performance.now();
@@ -85,10 +94,17 @@ export function useMicPitch(options: Options = {}): MicPitchState {
       },
     })
       .then((listener) => {
+        if (session !== sessionRef.current) {
+          listener.stop();
+          return;
+        }
+        startingRef.current = false;
         listenerRef.current = listener;
         setStatus('listening');
       })
       .catch((err: unknown) => {
+        if (session !== sessionRef.current) return;
+        startingRef.current = false;
         const message =
           err instanceof DOMException && err.name === 'NotAllowedError'
             ? 'Microphone access was denied. Allow mic access in your browser to use this feature.'
@@ -98,15 +114,21 @@ export function useMicPitch(options: Options = {}): MicPitchState {
         setError(message);
         setStatus('error');
       });
-  }, [minClarity, minFreq, maxFreq, holdMs]);
+  }, [gain, minClarity, minFreq, maxFreq, holdMs]);
 
   // Apply gain changes live (e.g. from a slider) without restarting the mic.
   useEffect(() => {
     listenerRef.current?.setGain(gain);
   }, [gain]);
 
-  // Clean up on unmount.
-  useEffect(() => () => listenerRef.current?.stop(), []);
+  // Clean up on unmount, including a start that has not resolved yet.
+  useEffect(
+    () => () => {
+      sessionRef.current += 1;
+      listenerRef.current?.stop();
+    },
+    [],
+  );
 
   return { status, error, note, clarity, start, stop };
 }

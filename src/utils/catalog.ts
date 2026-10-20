@@ -1,4 +1,16 @@
+import { Note } from 'tonal';
+
 export const ROOTS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+/**
+ * Pitch class spelled the same way as `ROOTS` (sharps).
+ * Returns null when `note` is not a real pitch class.
+ */
+export function canonicalRoot(note: string): string | null {
+  const chroma = Note.chroma(note);
+  if (chroma == null || !Number.isInteger(chroma)) return null;
+  return ROOTS[chroma] ?? null;
+}
 
 export interface ChordQuality {
   label: string;
@@ -45,5 +57,6 @@ export const SCALE_TYPES = [
 export function splitChordSymbol(symbol: string): { root: string; quality: string } {
   const m = symbol.match(/^([A-G][#b]?)(.*)$/);
   if (!m) return { root: 'C', quality: '' };
-  return { root: m[1], quality: m[2] };
+  // Dropdowns only list sharp spellings, so Bb must become A# or the select shows a blank value.
+  return { root: canonicalRoot(m[1]) ?? 'C', quality: m[2] };
 }

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Fretboard, { type CellMarker, type HighlightMap } from './Fretboard';
-import { notesForChord, findChordShapes, voicePitchClasses } from '../music/engine';
-import { noteAtFret } from '../music/notes';
-import { colorForDegree } from '../music/colors';
-import { playChord, stopAll } from '../music/audio';
+import { notesForChord, findChordShapes, voicePitchClasses } from '../utils/engine';
+import { noteAtFret } from '../utils/notes';
+import { colorForDegree } from '../utils/colors';
+import { playChord, stopAll } from '../utils/audio';
 
 interface Props {
   chordSymbol: string;
@@ -23,7 +23,13 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
     [chordSymbol, tuning, numFrets],
   );
 
-  useEffect(() => setSelected(shapes.length ? 0 : null), [chordSymbol, tuning, shapes.length]);
+  // Reset to the first voicing when the chord or tuning changes, without an effect.
+  const shapeKey = `${chordSymbol}|${tuning.join(',')}|${shapes.length}`;
+  const [trackedShapeKey, setTrackedShapeKey] = useState(shapeKey);
+  if (trackedShapeKey !== shapeKey) {
+    setTrackedShapeKey(shapeKey);
+    setSelected(shapes.length ? 0 : null);
+  }
 
   const highlightedNotes: HighlightMap = useMemo(() => {
     const map: HighlightMap = {};
@@ -107,6 +113,7 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
               <button
                 key={i}
                 onClick={() => setSelected(i)}
+                aria-pressed={selected === i}
                 className={`rounded-lg border px-3 py-2 font-mono text-sm ${
                   selected === i
                     ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'

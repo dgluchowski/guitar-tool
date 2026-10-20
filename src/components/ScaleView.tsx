@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import Fretboard, { type HighlightMap } from './Fretboard';
-import { notesForScale, voicePitchClasses } from '../music/engine';
-import { colorForDegree } from '../music/colors';
-import { playSequence } from '../music/audio';
+import { notesForScale, voicePitchClasses } from '../utils/engine';
+import { colorForDegree } from '../utils/colors';
+import { playSequence } from '../utils/audio';
 
 interface Props {
   root: string;
