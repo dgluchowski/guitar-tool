@@ -98,7 +98,7 @@ export function useMicPitch(options: Options = {}): MicPitchState {
         setError(message);
         setStatus('error');
       });
-  }, [minClarity, minFreq, maxFreq, holdMs]);
+  }, [gain, minClarity, minFreq, maxFreq, holdMs]);
 
   // Apply gain changes live (e.g. from a slider) without restarting the mic.
   useEffect(() => {
