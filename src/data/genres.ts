@@ -40,12 +40,22 @@ export interface Lesson {
   content: LessonContent;
 }
 
+/** A page the genre's musical claims were checked against. */
+export interface GenreSource {
+  title: string;
+  url: string;
+}
+
 export interface Genre {
   id: string;
   name: string;
   blurb: string;
-  /** Whether a human has fact-checked this genre's content. */
+  /**
+   * True only after the tunings, scales, voicings, progressions, and lesson
+   * text were checked against `sources`. Unchecked claims stay false.
+   */
   verified: boolean;
+  sources: GenreSource[];
   tunings: GenreTuning[];
   scales: GenreScale[];
   voicings: GenreVoicing[];

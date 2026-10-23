@@ -57,7 +57,7 @@ function UnverifiedBadge() {
   return (
     <span
       className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
-      title="This content is placeholder and has not been fact-checked yet."
+      title="These musical claims have not been checked against sources yet."
     >
       Unverified
     </span>
@@ -150,6 +150,23 @@ function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) 
               <li key={i} className="rounded bg-stone-100 px-2 py-1 dark:bg-stone-800">
                 <span className="text-xs text-stone-400">{v.label}</span>{' '}
                 <span className="font-mono font-medium">{v.chordSymbol}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card title="Sources">
+          <ul className="flex flex-col gap-1 text-sm">
+            {genre.sources.map((source) => (
+              <li key={source.url}>
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-violet-600 hover:underline dark:text-violet-400"
+                >
+                  {source.title}
+                </a>
               </li>
             ))}
           </ul>

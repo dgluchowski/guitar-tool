@@ -27,7 +27,9 @@ export function Tuner({ tuning }: Props) {
   });
 
   const listening = status === 'listening';
-  const targetNote = targetIdx != null ? tuning[targetIdx] : null;
+  // A lock from a 7- or 8-string tuning must not point past a shorter tuning.
+  const lockedIdx = targetIdx != null && targetIdx < tuning.length ? targetIdx : null;
+  const targetNote = lockedIdx != null ? tuning[lockedIdx] : null;
 
   // Continuous MIDI of the detected pitch (auto mode nearest-string search).
   const midiFloat = note ? note.midi + note.cents / 100 : null;
@@ -70,7 +72,7 @@ export function Tuner({ tuning }: Props) {
 
   const inTune = hasReading && Math.abs(cents) <= IN_TUNE_CENTS;
   const needlePct = Math.max(0, Math.min(100, ((cents + 50) / 100) * 100));
-  const highlightIdx = targetIdx ?? nearestIdx;
+  const highlightIdx = lockedIdx ?? nearestIdx;
 
   return (
     <div className="flex flex-col gap-4">
@@ -163,9 +165,9 @@ export function Tuner({ tuning }: Props) {
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button
           onClick={() => setTargetIdx(null)}
-          aria-pressed={targetIdx == null}
+          aria-pressed={lockedIdx == null}
           className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-            targetIdx == null
+            lockedIdx == null
               ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300'
               : 'border-stone-200 text-stone-500 hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800'
           }`}
@@ -173,8 +175,8 @@ export function Tuner({ tuning }: Props) {
           Auto
         </button>
         {tuning.map((s, i) => {
-          const selected = targetIdx === i;
-          const nearest = targetIdx == null && highlightIdx === i;
+          const selected = lockedIdx === i;
+          const nearest = lockedIdx == null && highlightIdx === i;
           return (
             <button
               key={i}
