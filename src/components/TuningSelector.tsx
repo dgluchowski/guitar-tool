@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Note } from 'tonal';
-import { TUNINGS } from '../utils/notes';
+import { findTuningPreset, standardTuningForCount, STRING_COUNTS, TUNINGS } from '../utils/notes';
 import { parseTuningText, tuningToText } from '../utils/tuningIO';
 
 const PITCH_CLASSES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -14,12 +14,7 @@ interface Props {
 
 /** Does the current tuning match a named preset? */
 function matchingPresetId(tuning: string[]): string {
-  const match = TUNINGS.find(
-    (t) =>
-      t.strings.length === tuning.length &&
-      t.strings.every((n, i) => Note.chroma(n) === Note.chroma(tuning[i]) && Note.octave(n) === Note.octave(tuning[i])),
-  );
-  return match?.id ?? 'custom';
+  return findTuningPreset(tuning)?.id ?? 'custom';
 }
 
 export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Props) {
@@ -40,6 +35,14 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
       onCustomChange(false);
       onChange([...preset.strings]);
     }
+  };
+
+  const handleStringCount = (count: number) => {
+    if (count === tuning.length) return;
+    const preset = standardTuningForCount(count);
+    if (!preset) return;
+    onCustomChange(false);
+    onChange([...preset.strings]);
   };
 
   const setStringPitch = (i: number, pc: string) => {
@@ -86,9 +89,30 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
     onChange(parsed);
   };
 
+  const presetsForCount = TUNINGS.filter((t) => t.strings.length === tuning.length);
+  const selectedPreset = selected === 'custom' ? undefined : TUNINGS.find((t) => t.id === selected);
+  const stringCountOptions = (STRING_COUNTS as readonly number[]).includes(tuning.length)
+    ? STRING_COUNTS
+    : [...STRING_COUNTS, tuning.length].sort((a, b) => a - b);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          Strings
+          <select
+            value={tuning.length}
+            onChange={(e) => handleStringCount(Number(e.target.value))}
+            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+          >
+            {stringCountOptions.map((count) => (
+              <option key={count} value={count}>
+                {count}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="flex items-center gap-2 text-sm font-medium">
           Tuning
           <select
@@ -96,7 +120,7 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
             onChange={(e) => handlePreset(e.target.value)}
             className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
           >
-            {TUNINGS.map((t) => (
+            {presetsForCount.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
               </option>
@@ -117,6 +141,25 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
           {showIO ? 'Hide import/export' : 'Import / Export'}
         </button>
       </div>
+
+      {selectedPreset?.sources && selectedPreset.sources.length > 0 && (
+        <p className="text-xs text-stone-500">
+          Source:{' '}
+          {selectedPreset.sources.map((source, i) => (
+            <span key={source.url}>
+              {i > 0 && '; '}
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-violet-600 hover:underline dark:text-violet-400"
+              >
+                {source.title}
+              </a>
+            </span>
+          ))}
+        </p>
+      )}
 
       {showIO && (
         <div className="flex flex-col gap-2 rounded border border-stone-200 dark:border-stone-700 p-3">

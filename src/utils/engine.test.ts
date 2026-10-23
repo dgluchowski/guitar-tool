@@ -107,3 +107,43 @@ describe('findChordShapes (custom DADGAD tuning)', () => {
     }
   });
 });
+
+const STANDARD_7 = ['B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+const STANDARD_8 = ['F#1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+const DROP_E = ['E1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+
+describe('findChordShapes (7 and 8 strings)', () => {
+  it('keeps the open C shape on the upper strings of 7-string standard', () => {
+    const shapes = findChordShapes('C', STANDARD_7, { maxFrets: 15 });
+    expect(shapes.map((s) => fretStr(s.frets))).toContain('xx32010');
+  });
+
+  it('searches an 8-string chord quickly and only sounds chord tones', () => {
+    const set = notesForChord('Cmaj7');
+    const allowed = new Set(set.pitches.map((p) => p.chroma));
+    const start = performance.now();
+    const shapes = findChordShapes('Cmaj7', STANDARD_8, { maxFrets: 15 });
+    expect(performance.now() - start).toBeLessThan(500);
+    expect(shapes.length).toBeGreaterThan(0);
+    for (const shape of shapes) {
+      expect(shape.fingers).toBeLessThanOrEqual(4);
+      const fretted = shape.frets.filter((f): f is number => f != null && f > 0);
+      if (fretted.length) expect(Math.max(...fretted) - Math.min(...fretted)).toBeLessThan(4);
+      for (const pos of shape.positions) expect(allowed.has(Note.chroma(pos.pc)!)).toBe(true);
+    }
+  });
+
+  it('can use the extra open strings in an Em voicing of Drop E', () => {
+    const shapes = findChordShapes('Em', DROP_E, { maxFrets: 15 });
+    const strs = shapes.map((s) => fretStr(s.frets));
+    expect(strs.some((s) => s === '00022000' || s === 'x0022000' || s === 'xx022000')).toBe(true);
+  });
+
+  it('stays responsive with more than eight strings', () => {
+    const tuning = ['C1', 'F#1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4', 'A4'];
+    const start = performance.now();
+    const shapes = findChordShapes('C', tuning, { maxFrets: 15 });
+    expect(performance.now() - start).toBeLessThan(500);
+    expect(shapes.length).toBeGreaterThan(0);
+  });
+});

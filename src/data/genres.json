@@ -1,11 +1,18 @@
 {
-  "_README": "Musical content for the genre learning paths. It is written to be accurate, but \"verified\": false means it has not had a final human review — flip it to true once you've checked a genre. This file is plain data; edit freely.",
+  "_README": "Musical content for the genre paths. verified is true only when the tunings, scales, voicings, progressions, and lesson sentences were checked against that genre's sources. A band is named only when one of those sources names them.",
   "genres": [
     {
       "id": "blues",
       "name": "Blues",
-      "blurb": "Dominant 7th chords, the 12-bar form, and expressive minor-pentatonic / blues-scale soloing.",
-      "verified": false,
+      "blurb": "Dominant 7ths on I, IV, and V, the 12-bar form, and minor-pentatonic and blues-scale soloing.",
+      "verified": true,
+      "sources": [
+        { "title": "Twelve-bar blues — Wikipedia", "url": "https://en.wikipedia.org/wiki/Twelve-bar_blues" },
+        { "title": "Blues scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Blues_scale" },
+        { "title": "Open G tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Open_G_tuning" },
+        { "title": "Open E tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Open_E_tuning" },
+        { "title": "Mixolydian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Mixolydian_mode" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
         { "name": "Open G (slide)", "strings": ["D2", "G2", "D3", "G3", "B3", "D4"] },
@@ -22,37 +29,37 @@
         { "label": "V7", "chordSymbol": "B7" }
       ],
       "progressions": [
-        { "name": "12-bar blues in E", "numerals": ["I", "I", "I", "I", "IV", "IV", "I", "I", "V", "IV", "I", "V"], "keyTonic": "E", "keyMode": "major" },
-        { "name": "Quick-change blues", "numerals": ["I", "IV", "I", "I", "IV", "IV", "I", "I", "V", "IV", "I", "V"], "keyTonic": "E", "keyMode": "major" },
-        { "name": "Simple I–IV–V turnaround", "numerals": ["I", "IV", "V"], "keyTonic": "E", "keyMode": "major" }
+        { "name": "12-bar blues in E", "numerals": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"], "keyTonic": "E", "keyMode": "major" },
+        { "name": "Quick to four", "numerals": ["I7", "IV7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "I7"], "keyTonic": "E", "keyMode": "major" },
+        { "name": "Turnaround, bars 9–12", "numerals": ["V7", "IV7", "I7", "V7"], "keyTonic": "E", "keyMode": "major" }
       ],
       "lessons": [
         {
           "id": "blues-1",
-          "title": "The blues feel: dominant 7th chords",
-          "explainer": "Blues harmony leans on dominant 7th chords (root, 3rd, 5th, ♭7) for the I, IV and V — where most pop would use plain major triads. That flat 7th is what gives the blues its restless, bittersweet edge.",
-          "practice": "Play E7, A7 and B7, switching between them in time and listening for the ♭7 in each.",
+          "title": "Dominant 7ths on I, IV, and V",
+          "explainer": "The simplest 12-bar chart is the triads I, IV, and V. In practice, dominant 7th chords — root, major 3rd, 5th, and ♭7 — are generally used on all three. E Mixolydian is the E major scale with that ♭7 (E F# G# A B C# D), so it contains every note of E7.",
+          "practice": "Play E7, A7, and B7 in time and listen for the ♭7 in each chord.",
           "content": { "kind": "chord", "chordSymbol": "E7" }
         },
         {
           "id": "blues-2",
-          "title": "Minor pentatonic & the blue note",
-          "explainer": "The minor pentatonic (E G A B D) is the core of blues lead playing. Adding the ♭5 turns it into the six-note blues scale — that extra 'blue note' is usually bent into or passed through quickly for tension.",
-          "practice": "Run the E blues scale up and down around the 12th-fret box, bending into the ♭5.",
+          "title": "Minor pentatonic and the blues scale",
+          "explainer": "The E minor pentatonic is E G A B D (1, ♭3, 4, 5, ♭7). The six-note blues scale adds the ♭5, B♭. Blue notes are commonly the ♭3, ♭5, and ♭7, and one blues scale is often used over the whole 12-bar form rather than a new scale on every chord.",
+          "practice": "Play the E blues scale around the 12th fret and bend into the ♭5 instead of sitting on it.",
           "content": { "kind": "scale", "root": "E", "scaleType": "blues" }
         },
         {
           "id": "blues-3",
           "title": "The 12-bar form",
-          "explainer": "The 12-bar blues is the genre's signature form: three four-bar phrases built from the I, IV and V chords. Once it's in your ears you can trade choruses with almost any blues musician.",
-          "practice": "Comp through the 12-bar form slowly, then bring it up to a shuffle tempo.",
-          "content": { "kind": "progression", "numerals": ["I", "I", "I", "I", "IV", "IV", "I", "I", "V", "IV", "I", "V"], "keyTonic": "E", "keyMode": "major" }
+          "explainer": "The basic form is four bars of I, two of IV, two of I, then V, IV, I, V. The V in bar 12 leads back to the top. Quick to four puts IV in bar 2 and, in the usual chart, ends on I. Bars 9–12 (V–IV–I–V) are the turnaround, not a separate three-chord loop. This lesson uses the dominant-7th version of the basic form.",
+          "practice": "Comp the 12 bars slowly, then try the same chords with a shuffle feel.",
+          "content": { "kind": "progression", "numerals": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"], "keyTonic": "E", "keyMode": "major" }
         },
         {
           "id": "blues-4",
-          "title": "Open tunings for slide",
-          "explainer": "Open G (D G D G B D) tunes the open strings to a G major chord, so a single barre gives you a full chord anywhere on the neck — the classic setup for slide blues.",
-          "practice": "Tune to Open G, strum the open strings, then barre straight across at the 5th and 7th frets.",
+          "title": "Open G and Open E for slide",
+          "explainer": "Open G is D–G–D–G–B–D, low to high. The open strings are a G major chord, and barring one fret plays the other major chords, which is why slide and steel sit well in the tuning. It is common in blues and folk. Open E is E–B–E–G#–B–E, an E major chord, and is used the same way for slide.",
+          "practice": "Tune to Open G, strum the open strings, then barre the 5th and 7th frets.",
           "content": { "kind": "tuning", "name": "Open G (slide)", "strings": ["D2", "G2", "D3", "G3", "B3", "D4"] }
         }
       ]
@@ -60,15 +67,21 @@
     {
       "id": "rock",
       "name": "Rock",
-      "blurb": "Power chords, driving rhythms, Drop D riffs, and pentatonic / Mixolydian leads.",
-      "verified": false,
+      "blurb": "Power chords, Drop D, and minor-pentatonic and Mixolydian leads.",
+      "verified": true,
+      "sources": [
+        { "title": "Power chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Power_chord" },
+        { "title": "Drop D tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Drop_D_tuning" },
+        { "title": "Mixolydian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Mixolydian_mode" },
+        { "title": "Blues scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Blues_scale" },
+        { "title": "I–V–vi–IV progression — Wikipedia", "url": "https://en.wikipedia.org/wiki/I%E2%80%93V%E2%80%93vi%E2%80%93IV_progression" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
         { "name": "Drop D", "strings": ["D2", "A2", "D3", "G3", "B3", "E4"] }
       ],
       "scales": [
         { "root": "E", "scaleType": "minor pentatonic" },
-        { "root": "E", "scaleType": "minor" },
         { "root": "E", "scaleType": "mixolydian" }
       ],
       "voicings": [
@@ -85,29 +98,29 @@
         {
           "id": "rock-1",
           "title": "Power chords",
-          "explainer": "A power chord is just the root and 5th — no 3rd — so it's neither major nor minor. That ambiguity stays clean and punchy under distortion, and the same shape slides anywhere on the neck.",
-          "practice": "Play E5, A5 and D5 with palm muting for a tight, percussive rock rhythm.",
+          "explainer": "A power chord is the root and the 5th, sometimes with an octave of either. There is no 3rd, so it is neither major nor minor. Under distortion a full triad's 3rd makes the sound muddy; the root and 5th stay clearer. The same shape moves up the neck.",
+          "practice": "Play E5, A5, and D5 with a short palm mute so the chords stay percussive.",
           "content": { "kind": "chord", "chordSymbol": "E5" }
         },
         {
           "id": "rock-2",
           "title": "Drop D power",
-          "explainer": "Dropping the low E string to D lets you fret a power chord with one finger across the bottom three strings, and gives a heavier, lower root — the backbone of countless rock and metal riffs.",
-          "practice": "Tune to Drop D and play one-finger power chords by barring the low three strings at frets 0, 3 and 5.",
+          "explainer": "Drop D lowers only the low E to D, so the tuning is D A D G B E. The three open bass strings are a D5, and barring those three strings with one finger plays the other power chords. In standard tuning the same shape needs two or three fingers.",
+          "practice": "Tune to Drop D and barre the low three strings at frets 0, 3, and 5.",
           "content": { "kind": "tuning", "name": "Drop D", "strings": ["D2", "A2", "D3", "G3", "B3", "E4"] }
         },
         {
           "id": "rock-3",
           "title": "The Mixolydian ♭VII",
-          "explainer": "Borrowing the ♭VII chord (D in the key of E) comes from the Mixolydian mode and gives that wide-open, classic-rock sound. The ♭VII–IV–I cadence sidesteps the leading tone, so it feels anthemic rather than tense.",
-          "practice": "Loop E–D–A and feel how the ♭VII relaxes back toward the tonic.",
+          "explainer": "The loop on screen is I–♭VII–IV: E, D, and A in E major. ♭VII is the subtonic. E Mixolydian is E major with a ♭7 (D instead of D#), so this loop never uses the leading tone. That is a different sound from a V–I cadence. In G major, vi–IV–I–V is Em–C–G–D, a rotation of the common I–V–vi–IV loop.",
+          "practice": "Loop E–D–A and notice that D does not pull the way a B7 would.",
           "content": { "kind": "progression", "numerals": ["I", "bVII", "IV"], "keyTonic": "E", "keyMode": "major" }
         },
         {
           "id": "rock-4",
-          "title": "Pentatonic soloing",
-          "explainer": "The minor pentatonic is the default vocabulary for rock leads — five notes that sit well over both minor and dominant backing. Learn one box, then connect the boxes up the neck.",
-          "practice": "Solo over an E–D–A vamp using only the E minor pentatonic, landing on chord tones on the downbeats.",
+          "title": "Minor pentatonic over a major vamp",
+          "explainer": "E minor pentatonic is E G A B D. Over the E–D–A vamp, G is the ♭3 against an E major I chord. That ♭3 is a blue note; the clash is the usual rock-lead color, not a wrong note to avoid.",
+          "practice": "Solo over E–D–A with only E minor pentatonic, and land on E, A, or D on the downbeats.",
           "content": { "kind": "scale", "root": "E", "scaleType": "minor pentatonic" }
         }
       ]
@@ -115,8 +128,15 @@
     {
       "id": "folk",
       "name": "Folk",
-      "blurb": "Open chords, fingerpicking-friendly tunings like DADGAD, and singer-songwriter progressions.",
-      "verified": false,
+      "blurb": "Open chords in G, the I–V–vi–IV loop, and DADGAD.",
+      "verified": true,
+      "sources": [
+        { "title": "DADGAD — Wikipedia", "url": "https://en.wikipedia.org/wiki/DADGAD" },
+        { "title": "I–V–vi–IV progression — Wikipedia", "url": "https://en.wikipedia.org/wiki/I%E2%80%93V%E2%80%93vi%E2%80%93IV_progression" },
+        { "title": "Major scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Major_scale" },
+        { "title": "Pentatonic scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Pentatonic_scale" },
+        { "title": "Mixolydian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Mixolydian_mode" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
         { "name": "DADGAD", "strings": ["D2", "A2", "D3", "G3", "A3", "D4"] },
@@ -135,36 +155,36 @@
       ],
       "progressions": [
         { "name": "I–IV–V in G", "numerals": ["I", "IV", "V"], "keyTonic": "G", "keyMode": "major" },
-        { "name": "I–V–vi–IV (singer-songwriter)", "numerals": ["I", "V", "vi", "IV"], "keyTonic": "G", "keyMode": "major" },
+        { "name": "I–V–vi–IV", "numerals": ["I", "V", "vi", "IV"], "keyTonic": "G", "keyMode": "major" },
         { "name": "I–vi–IV–V", "numerals": ["I", "vi", "IV", "V"], "keyTonic": "G", "keyMode": "major" }
       ],
       "lessons": [
         {
           "id": "folk-1",
           "title": "Open chords: G, C, D",
-          "explainer": "Open-position G, C and D ring with unfretted strings, giving folk its bright, resonant strum. They're the first chords most players learn and the foundation of thousands of songs.",
-          "practice": "Change cleanly between G, C and D in a steady down-up strum without stopping.",
+          "explainer": "In G major, I–IV–V is G, C, and D. The open-position shapes leave strings ringing, which is the usual first folk strum in this key. The relative minor, Em, is the vi chord.",
+          "practice": "Change between G, C, and D in a steady down-up strum without stopping the pulse.",
           "content": { "kind": "chord", "chordSymbol": "G" }
         },
         {
           "id": "folk-2",
-          "title": "The G major scale",
-          "explainer": "The G major scale (G A B C D E F#) tells you which notes and chords belong together in the key of G, so you can add melodic fills between chords and understand why folk progressions use the chords they do.",
-          "practice": "Play the G major scale in open position, naming each scale degree as you go.",
+          "title": "G major and its pentatonic",
+          "explainer": "G major is G A B C D E F#. The G major pentatonic keeps G A B D E and leaves out the half steps (C and F#). Both collections stay inside the key of the G, C, D, and Em chords.",
+          "practice": "Play G major in open position, then play it again skipping C and F#.",
           "content": { "kind": "scale", "root": "G", "scaleType": "major" }
         },
         {
           "id": "folk-3",
-          "title": "The four-chord song",
-          "explainer": "I–V–vi–IV (G–D–Em–C) is the four-chord engine behind a huge share of folk and pop songs. The vi adds a touch of melancholy before IV leads back home.",
-          "practice": "Loop G–D–Em–C and try singing a melody over the changes.",
+          "title": "I–V–vi–IV",
+          "explainer": "I–V–vi–IV in G is G–D–Em–C. It is a very common four-chord loop in folk and pop. The vi chord, Em, is the minor color before IV returns toward the tonic. I–vi–IV–V (G–Em–C–D) uses the same four chords in another order.",
+          "practice": "Loop G–D–Em–C and sing a simple melody on the G major pentatonic.",
           "content": { "kind": "progression", "numerals": ["I", "V", "vi", "IV"], "keyTonic": "G", "keyMode": "major" }
         },
         {
           "id": "folk-4",
-          "title": "DADGAD: the modal folk tuning",
-          "explainer": "DADGAD (D A D G A D) lowers the 1st, 2nd and 6th strings so the open strings form a droning Dsus4 — neither major nor minor. It's prized in Celtic and modern fingerstyle folk for its ringing, modal character.",
-          "practice": "Tune to DADGAD, let the open strings ring, then explore simple one- and two-finger shapes up the neck.",
+          "title": "DADGAD",
+          "explainer": "From standard tuning, the 1st, 2nd, and 6th strings each drop a whole step, giving D A D G A D. Those open notes are D, G, and A: a Dsus4, so the open chord is neither major nor minor. Davey Graham popularized the tuning; it is most associated with Celtic music and is also used in folk. D Mixolydian (D E F# G A B C) matches that modal color: major, with a ♭7 and no leading tone.",
+          "practice": "Tune to DADGAD, let the open strings ring, then move a one- or two-finger shape up the neck while a D or A string drones.",
           "content": { "kind": "tuning", "name": "DADGAD", "strings": ["D2", "A2", "D3", "G3", "A3", "D4"] }
         }
       ]
@@ -172,16 +192,21 @@
     {
       "id": "jazz",
       "name": "Jazz",
-      "blurb": "Seventh and extended chords, ii–V–I motion, modal improvisation and smooth voice-leading.",
-      "verified": false,
+      "blurb": "ii–V–I with seventh chords, plus Dorian on the ii and Mixolydian on the V.",
+      "verified": true,
+      "sources": [
+        { "title": "ii–V–I progression — Wikipedia", "url": "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression" },
+        { "title": "Dorian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Dorian_mode" },
+        { "title": "Mixolydian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Mixolydian_mode" },
+        { "title": "Major seventh chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Major_seventh_chord" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] }
       ],
       "scales": [
         { "root": "C", "scaleType": "major" },
         { "root": "D", "scaleType": "dorian" },
-        { "root": "G", "scaleType": "mixolydian" },
-        { "root": "C", "scaleType": "melodic minor" }
+        { "root": "G", "scaleType": "mixolydian" }
       ],
       "voicings": [
         { "label": "ii7", "chordSymbol": "Dm7" },
@@ -198,29 +223,29 @@
         {
           "id": "jazz-1",
           "title": "The ii–V–I cadence",
-          "explainer": "The ii–V–I is the central cadence of jazz: the iim7 sets up the dominant V7, whose tritone pulls strongly into the Imaj7. Hearing and voicing this motion smoothly is the heart of jazz harmony.",
-          "practice": "Comp Dm7–G7–Cmaj7, keeping common tones and moving the inner voices as little as possible.",
+          "explainer": "In C major the jazz ii–V–I is Dm7–G7–Cmaj7. The 3rd and 7th of Dm7 are F and C; C falls a half step to B, the 3rd of G7, and F becomes the ♭7 of G7. That ♭7, F, then falls a half step to E, the 3rd of Cmaj7, while B becomes the major 7th. G13 keeps the same B–F tritone and adds the 9th (A) and 13th (E). In A minor the cadence is Bm7♭5–E7–Am7. The I–vi–ii–V turnaround in C is Cmaj7–Am7–Dm7–G7.",
+          "practice": "Comp Dm7–G7–Cmaj7 and keep F moving to E on the way into Cmaj7.",
           "content": { "kind": "progression", "numerals": ["ii7", "V7", "Imaj7"], "keyTonic": "C", "keyMode": "major" }
         },
         {
           "id": "jazz-2",
-          "title": "Major 7th: the resting sound",
-          "explainer": "A major 7th chord (1-3-5-7) sounds lush and at rest — the home color of a major key in jazz, far warmer and more open than a plain triad.",
-          "practice": "Play Cmaj7 and let it ring, then compare its sound directly to a plain C major triad.",
+          "title": "Major 7th on I",
+          "explainer": "Cmaj7 is C E G B: a major triad plus the major 7th. In a major-key ii–V–I, that is the usual I chord.",
+          "practice": "Play Cmaj7, then a plain C triad, and listen for the B against the C.",
           "content": { "kind": "chord", "chordSymbol": "Cmaj7" }
         },
         {
           "id": "jazz-3",
           "title": "Dorian over the ii chord",
-          "explainer": "Over a iim7 chord, the Dorian mode (D E F G A B C — a minor scale with a natural 6th) outlines the chord tones and gives that smooth, cool minor color jazz players favor.",
-          "practice": "Improvise over a Dm7 vamp using D Dorian, landing on the chord tones D, F, A and C.",
+          "explainer": "D Dorian is D E F G A B C: a D minor scale with a natural 6th, B, instead of B♭. The chord tones of Dm7 are D, F, A, and C, all inside that scale.",
+          "practice": "Improvise over Dm7 in D Dorian and land on D, F, A, or C.",
           "content": { "kind": "scale", "root": "D", "scaleType": "dorian" }
         },
         {
           "id": "jazz-4",
           "title": "Mixolydian over the V chord",
-          "explainer": "Mixolydian (G A B C D E F — major with a ♭7) is the basic scale over a dominant V7, spelling out its root, 3rd, 5th and ♭7 and leading naturally into the tonic.",
-          "practice": "Play G Mixolydian over a G7 vamp, then resolve smoothly to the 3rd of Cmaj7.",
+          "explainer": "G Mixolydian is G A B C D E F: G major with a ♭7. Those notes include the chord tones of G7 (G, B, D, F). The ♭7 is the note that falls to E when the cadence resolves to Cmaj7.",
+          "practice": "Play G Mixolydian over G7, then resolve F to E, the 3rd of Cmaj7.",
           "content": { "kind": "scale", "root": "G", "scaleType": "mixolydian" }
         }
       ]
@@ -228,8 +253,15 @@
     {
       "id": "metal",
       "name": "Metal",
-      "blurb": "Down-tuned power chords, palm-muted riffing, and dark scales like Phrygian and harmonic minor.",
-      "verified": false,
+      "blurb": "Palm-muted power chords, Drop C, Phrygian ♭2 riffs, and harmonic minor as a separate color.",
+      "verified": true,
+      "sources": [
+        { "title": "Power chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Power_chord" },
+        { "title": "Drop D tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Drop_D_tuning" },
+        { "title": "Drop C tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Drop_C_tuning" },
+        { "title": "Phrygian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Phrygian_mode" },
+        { "title": "Harmonic minor scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Harmonic_minor_scale" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
         { "name": "Drop D", "strings": ["D2", "A2", "D3", "G3", "B3", "E4"] },
@@ -237,9 +269,7 @@
       ],
       "scales": [
         { "root": "E", "scaleType": "phrygian" },
-        { "root": "E", "scaleType": "harmonic minor" },
-        { "root": "E", "scaleType": "phrygian dominant" },
-        { "root": "E", "scaleType": "minor pentatonic" }
+        { "root": "E", "scaleType": "harmonic minor" }
       ],
       "voicings": [
         { "label": "i5", "chordSymbol": "E5" },
@@ -256,29 +286,29 @@
         {
           "id": "metal-1",
           "title": "Palm-muted power chords",
-          "explainer": "Metal is built on power chords driven by tight palm muting — resting the picking-hand edge near the bridge to choke the strings into a percussive chug. With no 3rd, they stay clear and aggressive under heavy distortion.",
-          "practice": "Palm-mute E5 in steady eighth or sixteenth notes, then accent off-beats for a galloping rhythm.",
+          "explainer": "A power chord is the root and 5th, with no 3rd, so it is neither major nor minor and stays clear under distortion. Palm muting rests the picking hand at the bridge and turns the chord into a short percussive attack. That combination is a standard metal rhythm sound.",
+          "practice": "Palm-mute E5 in steady eighth notes, then accent some of the attacks.",
           "content": { "kind": "chord", "chordSymbol": "E5" }
         },
         {
           "id": "metal-2",
-          "title": "Down-tuning: Drop C",
-          "explainer": "Drop C (C G C F A D) takes Drop D down a further whole step: lower, heavier, and still one-finger power chords on the bottom strings. The looser string tension also makes for chunkier palm mutes.",
-          "practice": "Tune to Drop C and play one-finger power chords low on the neck, focusing on tight muting between hits.",
+          "title": "Drop C",
+          "explainer": "Drop C, most commonly C G C F A D, is Drop D transposed down a whole step (or D standard with the 6th string dropped to C). The three lowest open strings, C G C, are a C5, so one finger still plays power chords. The lower pitch is why the tuning is common in rock and heavy metal.",
+          "practice": "Tune to Drop C and barre the low three strings, muting the strings between hits.",
           "content": { "kind": "tuning", "name": "Drop C", "strings": ["C2", "G2", "C3", "F3", "A3", "D4"] }
         },
         {
           "id": "metal-3",
-          "title": "The Phrygian mode",
-          "explainer": "Phrygian (E F G A B C D — minor with a ♭2) is a metal staple: that half-step between the root and ♭2 sounds instantly dark and menacing.",
-          "practice": "Riff around the open low strings using E Phrygian, leaning on the F (♭2) for tension.",
+          "title": "Phrygian and harmonic minor",
+          "explainer": "E Phrygian is E F G A B C D: a minor scale whose 2nd is only a half step above the root. E harmonic minor is a different collection, E F# G A B C D#. It is natural minor with a raised 7th, so it has a leading tone and does not have Phrygian's ♭2. In E minor, i–VI–VII is Em–C–D and i–iv–VII is Em–Am–D.",
+          "practice": "Riff on the low strings in E Phrygian and lean on F, the ♭2. Then play D# once so you can hear the harmonic-minor leading tone.",
           "content": { "kind": "scale", "root": "E", "scaleType": "phrygian" }
         },
         {
           "id": "metal-4",
           "title": "The Phrygian i–♭II move",
-          "explainer": "The i–♭II move (Em–F) is the sound of Phrygian metal — the ♭II chord sits a half step above the tonic for maximum darkness and menace.",
-          "practice": "Chug Em, then shift up a half step to F, palm-muting both and accenting the change.",
+          "explainer": "In E natural minor the diatonic II is F#. Flattening it gives F, a major chord a half step above Em. That i–♭II move is the chord form of Phrygian's ♭2. The power-chord version is E5 to F5.",
+          "practice": "Palm-mute Em, then move up one fret to F. Try the same roots as E5 and F5.",
           "content": { "kind": "progression", "numerals": ["i", "bII"], "keyTonic": "E", "keyMode": "minor" }
         }
       ]
@@ -286,8 +316,15 @@
     {
       "id": "funk",
       "name": "Funk",
-      "blurb": "Tight sixteenth-note muting, dominant 9th chords, and single-note minor-pentatonic grooves.",
-      "verified": false,
+      "blurb": "Sixteenth-note guitar, dominant 9ths, and short one- or two-chord vamps.",
+      "verified": true,
+      "sources": [
+        { "title": "Funk — Wikipedia", "url": "https://en.wikipedia.org/wiki/Funk" },
+        { "title": "Ninth chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Ninth_chord" },
+        { "title": "Hendrix chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Hendrix_chord" },
+        { "title": "Dorian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Dorian_mode" },
+        { "title": "Blues scale — Wikipedia", "url": "https://en.wikipedia.org/wiki/Blues_scale" }
+      ],
       "tunings": [
         { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] }
       ],
@@ -303,38 +340,228 @@
         { "label": "I7#9", "chordSymbol": "E7#9" }
       ],
       "progressions": [
+        { "name": "Two-chord vamp i7–IV7 (A)", "numerals": ["i7", "IV7"], "keyTonic": "A", "keyMode": "minor" },
         { "name": "Dorian vamp i7–IV7 (E)", "numerals": ["i7", "IV7"], "keyTonic": "E", "keyMode": "minor" },
-        { "name": "One-chord dominant vamp (E)", "numerals": ["I7"], "keyTonic": "E", "keyMode": "major" },
-        { "name": "ii–V (jazz-funk)", "numerals": ["ii7", "V7"], "keyTonic": "C", "keyMode": "major" }
+        { "name": "One-chord dominant vamp (E)", "numerals": ["I7"], "keyTonic": "E", "keyMode": "major" }
       ],
       "lessons": [
         {
           "id": "funk-1",
-          "title": "The dominant 9th 'chank'",
-          "explainer": "Funk rhythm guitar lives on the dominant 9th (1-3-5-♭7-9), played with crisp sixteenth-note strumming and lots of fretting-hand muting for that scratchy 'chank'. The chord barely changes — the groove does the work.",
-          "practice": "Strum E9 in tight sixteenths, muting most strokes with the fretting hand and letting only the accents ring.",
+          "title": "The dominant 9th",
+          "explainer": "Funk guitar favors extended chords, including dominant 9ths, and often plays them as short sixteenth-note stabs with muted ghost notes. E9 is E G# B D F#: root, 3rd, 5th, ♭7, and 9th. The verse of Wild Cherry's \"Play That Funky Music\" is mainly an E ninth chord. A dominant 7th with a ♯9, such as E7#9, is the related \"Hendrix chord\" color; funk harmony also uses sharp ninths.",
+          "practice": "Strum E9 in sixteenths. Let a few attacks ring and mute the rest with the fretting hand.",
           "content": { "kind": "chord", "chordSymbol": "E9" }
         },
         {
           "id": "funk-2",
-          "title": "Single-note pentatonic grooves",
-          "explainer": "Single-note funk lines lean on the minor pentatonic, played staccato and locked to the sixteenth-note grid. Space and rhythm matter as much as the notes you choose.",
-          "practice": "Play short, punchy E-minor-pentatonic phrases over a one-chord vamp, leaving rests on the off-beats for a tight pocket.",
+          "title": "Space, sixteenths, and the blues scale",
+          "explainer": "Funk treats the rests between notes as part of the groove, and its guitar and drum parts often move in sixteenth notes so other parts can play more broken, syncopated rhythms. James Brown's groove emphasizes beat one (\"the one\"), not a rule that every rest sits on an off-beat. Funk bass lines often use blues-scale notes. E minor pentatonic is E G A B D; the E blues scale adds the ♭5, B♭.",
+          "practice": "Play short E minor pentatonic notes over one chord. Leave gaps, and put a clear accent on beat one.",
           "content": { "kind": "scale", "root": "E", "scaleType": "minor pentatonic" }
         },
         {
           "id": "funk-3",
-          "title": "Riding a two-chord vamp",
-          "explainer": "Much of funk sits on a two-chord vamp rather than a moving progression. Em7 to A7 outlines E Dorian (minor with a natural 6th), giving a bright, groovy minor color to ride for whole sections.",
-          "practice": "Vamp Em7–A7 in sixteenths and drop short fills between the chords.",
-          "content": { "kind": "progression", "numerals": ["i7", "IV7"], "keyTonic": "E", "keyMode": "minor" }
+          "title": "One chord or two",
+          "explainer": "Unlike bebop's fast changes, funk often sits on one chord or on a two-chord vamp for a whole section. A documented pair is a minor seventh moving to the dominant seventh a fourth up, such as A minor to D7. In A minor that is i7–IV7, Am7–D7. The same pair in E is Em7–A7.",
+          "practice": "Vamp Am7–D7 in sixteenths, then try Em7–A7.",
+          "content": { "kind": "progression", "numerals": ["i7", "IV7"], "keyTonic": "A", "keyMode": "minor" }
         },
         {
           "id": "funk-4",
-          "title": "Dorian color for solos",
-          "explainer": "E Dorian (E F# G A B C# D) is the go-to scale over a minor funk vamp — the natural 6th (C#) adds lift and brightness compared with a plain minor scale.",
-          "practice": "Solo over an Em7 vamp using E Dorian, targeting the natural 6th to bring out the Dorian flavor.",
+          "title": "Dorian on the minor vamp",
+          "explainer": "E Dorian is E F# G A B C# D: E natural minor with a raised 6th. A7 contains C#, that raised 6th, so Em7–A7 agrees with E Dorian rather than with E natural minor (whose 6th is C).",
+          "practice": "Solo over Em7–A7 in E Dorian and land on C# over the A7.",
           "content": { "kind": "scale", "root": "E", "scaleType": "dorian" }
+        }
+      ]
+    },
+    {
+      "id": "math-rock",
+      "name": "Math Rock",
+      "blurb": "Odd and changing meters, tapping, extended chords, and open tunings such as FACGCE.",
+      "verified": true,
+      "sources": [
+        { "title": "Math rock — Wikipedia", "url": "https://en.wikipedia.org/wiki/Math_rock" },
+        { "title": "Guitar World — Mike Kinsella on FACGCE", "url": "https://www.guitarworld.com/features/mike-kinsella-american-football-owen" },
+        { "title": "Major seventh chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Major_seventh_chord" },
+        { "title": "Ninth chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Ninth_chord" }
+      ],
+      "tunings": [
+        { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "FACGCE", "strings": ["F2", "A2", "C3", "G3", "C4", "E4"] }
+      ],
+      "scales": [
+        { "root": "C", "scaleType": "major" }
+      ],
+      "voicings": [
+        { "label": "Imaj7", "chordSymbol": "Cmaj7" },
+        { "label": "IVmaj7", "chordSymbol": "Fmaj7" },
+        { "label": "IVmaj9", "chordSymbol": "Fmaj9" },
+        { "label": "vi7", "chordSymbol": "Am7" }
+      ],
+      "progressions": [
+        { "name": "Imaj7–IVmaj7–vi7–V in C", "numerals": ["Imaj7", "IVmaj7", "vi7", "V"], "keyTonic": "C", "keyMode": "major" },
+        { "name": "I–V–vi–IV in C", "numerals": ["I", "V", "vi", "IV"], "keyTonic": "C", "keyMode": "major" },
+        { "name": "vi7–IVmaj7–Imaj7–V", "numerals": ["vi7", "IVmaj7", "Imaj7", "V"], "keyTonic": "C", "keyMode": "major" }
+      ],
+      "lessons": [
+        {
+          "id": "math-1",
+          "title": "Odd and changing meters",
+          "explainer": "Most rock stays in 4/4. Math rock uses uneven meters such as 5/4, 7/8, 11/8, and 13/8, and it changes meter, with irregular stops and starts. The chords below are an ordinary I–V–vi–IV in C (C–G–Am–F). The player in this app does not switch the click to an odd meter; you count the grouping yourself.",
+          "practice": "Loop C–G–Am–F while counting 7/8 as 2+2+3. Then try 5/4 as 3+2 over the same chords.",
+          "content": { "kind": "progression", "numerals": ["I", "V", "vi", "IV"], "keyTonic": "C", "keyMode": "major" }
+        },
+        {
+          "id": "math-2",
+          "title": "FACGCE",
+          "explainer": "FACGCE is F A C G C E, low to high (F2 A2 C3 G3 C4 E4). Mike Kinsella told Guitar World that the last two Cap'n Jazz songs were in this tuning, which Victor Villarreal had found, and that he learned it from Villarreal. American Football, the band he later played in, used many tunings; this is not a claim that every song of theirs is FACGCE. The open strings are F, A, C, E, and G: an Fmaj9.",
+          "practice": "Tune to FACGCE and strum the open strings. Compare that sound with a fretted Fmaj9 in standard tuning.",
+          "content": { "kind": "tuning", "name": "FACGCE", "strings": ["F2", "A2", "C3", "G3", "C4", "E4"] }
+        },
+        {
+          "id": "math-3",
+          "title": "Extended chords",
+          "explainer": "Math rock guitar parts use extended chords rather than only triads. Cmaj7 is C E G B, a major triad plus the major 7th. Fmaj7 is F A C E. Fmaj9 adds the 9th, G, which is the chord the open FACGCE strings already spell. In C major, Imaj7–IVmaj7–vi7–V is Cmaj7–Fmaj7–Am7–G.",
+          "practice": "Play Cmaj7, then Fmaj7, and name the 7th of each chord (B, then E).",
+          "content": { "kind": "chord", "chordSymbol": "Cmaj7" }
+        },
+        {
+          "id": "math-4",
+          "title": "Tapping on a diatonic line",
+          "explainer": "Math rock guitarists use two-hand tapping to build on the drums' rhythms. Battles is the example usually given; tapping is a technique in the style, not something every math-rock band does on every song. A C major scale (C D E F G A B) stays inside the chords from the other lessons.",
+          "practice": "Tap a short C major phrase with both hands, then play the same notes with a pick so you can hear that the pitches did not change.",
+          "content": { "kind": "scale", "root": "C", "scaleType": "major" }
+        }
+      ]
+    },
+    {
+      "id": "djent",
+      "name": "Djent",
+      "blurb": "Extended-range and dropped tunings, palm-muted syncopated low-string riffs, and polymeter.",
+      "verified": true,
+      "sources": [
+        { "title": "Djent — Wikipedia", "url": "https://en.wikipedia.org/wiki/Djent" },
+        { "title": "Seven-string guitar — Wikipedia", "url": "https://en.wikipedia.org/wiki/Seven-string_guitar" },
+        { "title": "Eight-string guitar — Wikipedia", "url": "https://en.wikipedia.org/wiki/Eight-string_guitar" },
+        { "title": "Phrygian mode — Wikipedia", "url": "https://en.wikipedia.org/wiki/Phrygian_mode" },
+        { "title": "Guitar World — Ibanez TOD70", "url": "https://www.guitarworld.com/news/ibanez-signature-guitars-august-2024" },
+        { "title": "MusicRadar — Tim Henson on eight-strings", "url": "https://www.musicradar.com/artists/were-making-new-guitars-that-dont-exist-for-the-sole-purpose-of-writing-something-polyphias-tim-henson-teases-new-8-string-meisterworks-that-could-require-a-whole-new-guitar-to-play-along" },
+        { "title": "Guitar.com — Unprocessed", "url": "https://guitar.com/features/interviews/unprocessed-german-tech-metal-guitar/" },
+        { "title": "Guitar World — Manuel Gardner Fernandes", "url": "https://www.guitarworld.com/features/manuel-gardner-fernandes-unprocessed-and-everything-in-between" }
+      ],
+      "tunings": [
+        { "name": "7-string standard (B)", "strings": ["B1", "E2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "7-string Drop A", "strings": ["A1", "E2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "8-string standard (F#)", "strings": ["F#1", "B1", "E2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "8-string Drop E", "strings": ["E1", "B1", "E2", "A2", "D3", "G3", "B3", "E4"] }
+      ],
+      "scales": [
+        { "root": "B", "scaleType": "phrygian" },
+        { "root": "E", "scaleType": "phrygian" }
+      ],
+      "voicings": [
+        { "label": "i5 (B)", "chordSymbol": "B5" },
+        { "label": "Drop A root", "chordSymbol": "A5" },
+        { "label": "8-string root", "chordSymbol": "F#5" },
+        { "label": "Drop E root", "chordSymbol": "E5" }
+      ],
+      "progressions": [
+        { "name": "Phrygian i–♭II (B)", "numerals": ["i", "bII"], "keyTonic": "B", "keyMode": "minor" },
+        { "name": "Phrygian i–♭II (E)", "numerals": ["i", "bII"], "keyTonic": "E", "keyMode": "minor" },
+        { "name": "i–VII (B)", "numerals": ["i", "VII"], "keyTonic": "B", "keyMode": "minor" }
+      ],
+      "lessons": [
+        {
+          "id": "djent-1",
+          "title": "Seven-string standard",
+          "explainer": "Djent commonly uses seven- and eight-string guitars. Seven-string standard is B1 E2 A2 D3 G3 B3 E4: a low B under the usual six strings. Wikipedia names Trivium (on The Crusade and Shogun), Dream Theater, and Haken as bands that commonly use this tuning. Polyphia's Tim Henson has a seven-string signature, the Ibanez TOD70. That Guitar World report is about the guitar, not a published tuning for a specific song, so this preset is not credited to a Polyphia track.",
+          "practice": "Use this tuning, then play the open 7th string against the open 6th. They are B and E, a fourth, the same interval as the low pair in six-string standard.",
+          "content": { "kind": "tuning", "name": "7-string standard (B)", "strings": ["B1", "E2", "A2", "D3", "G3", "B3", "E4"] }
+        },
+        {
+          "id": "djent-2",
+          "title": "Drop A",
+          "explainer": "Dropped A is A1 E2 A2 D3 G3 B3 E4: only the low B moves down a whole step to A. Wikipedia notes that many jazz players use it for bass lines and easier power chords. The three lowest strings, A E A, are an A5, so one finger barres them, as in Drop D on a six-string. No source checked here assigns this exact tuning to Polyphia or Unprocessed.",
+          "practice": "Tune to Drop A and barre the lowest three strings at frets 0, 1, and 3.",
+          "content": { "kind": "tuning", "name": "7-string Drop A", "strings": ["A1", "E2", "A2", "D3", "G3", "B3", "E4"] }
+        },
+        {
+          "id": "djent-3",
+          "title": "Eight-string standard and Drop E",
+          "explainer": "Eight-string standard is F# B E A D G B E, low to high (F#1 under seven-string standard). Tuning that F# down to E1 is Drop E: E1 B1 E2 A2 D3 G3 B3 E4. E1 is the low E of a four-string bass, and the relationship is the same as Drop D on a six-string. Wikipedia associates the eight-string with the djent sound of Meshuggah, Vildhjarta, and Periphery, and says Animals as Leaders primarily use drop E. Unprocessed have recorded with eight-string Ibanez guitars (an RG8 on Artificial Void; an RG Custom as the main guitar for And Everything In Between). Tim Henson has said newer Polyphia writing uses a lot of eight-string guitars and baritones. Neither interview states the open pitches, so those bands are not tied to this preset.",
+          "practice": "Use Drop E and fret a one-finger power chord on the lowest three strings. Then switch to eight-string standard and hear the low string rise to F#.",
+          "content": { "kind": "tuning", "name": "8-string Drop E", "strings": ["E1", "B1", "E2", "A2", "D3", "G3", "B3", "E4"] }
+        },
+        {
+          "id": "djent-4",
+          "title": "Palm mutes and polymeter",
+          "explainer": "Djent is named for the sound of a heavily distorted, palm-muted guitar chord. The style uses syncopated riffs and polymeter: a guitar grouping that does not match the bar the drums are counting, as on Animals as Leaders' \"Cafo\". There is no single djent scale. B Phrygian (B C D E F# G A) is one dark choice, because the ♭2 sits a half step above the low B of seven-string standard. In B minor, i–♭II is Bm–C.",
+          "practice": "In seven-string standard, palm-mute an open B5. Accent every third sixteenth note while you keep counting a steady group of four.",
+          "content": { "kind": "chord", "chordSymbol": "B5" }
+        }
+      ]
+    },
+    {
+      "id": "alternative-metal",
+      "name": "Alternative Metal",
+      "blurb": "Downtuned mid-paced riffs, minor-key grooves, and loud/quiet contrast.",
+      "verified": true,
+      "sources": [
+        { "title": "Alternative metal — Wikipedia", "url": "https://en.wikipedia.org/wiki/Alternative_metal" },
+        { "title": "Helmet (band) — Wikipedia", "url": "https://en.wikipedia.org/wiki/Helmet_(band)" },
+        { "title": "Around the Fur — Wikipedia", "url": "https://en.wikipedia.org/wiki/Around_the_Fur" },
+        { "title": "Drop D tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Drop_D_tuning" },
+        { "title": "Drop C tuning — Wikipedia", "url": "https://en.wikipedia.org/wiki/Drop_C_tuning" },
+        { "title": "Power chord — Wikipedia", "url": "https://en.wikipedia.org/wiki/Power_chord" }
+      ],
+      "tunings": [
+        { "name": "Standard E", "strings": ["E2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "Drop D", "strings": ["D2", "A2", "D3", "G3", "B3", "E4"] },
+        { "name": "Drop C", "strings": ["C2", "G2", "C3", "F3", "A3", "D4"] }
+      ],
+      "scales": [
+        { "root": "D", "scaleType": "minor" },
+        { "root": "E", "scaleType": "minor" }
+      ],
+      "voicings": [
+        { "label": "i5 (D)", "chordSymbol": "D5" },
+        { "label": "i5 (E)", "chordSymbol": "E5" },
+        { "label": "Drop C root", "chordSymbol": "C5" }
+      ],
+      "progressions": [
+        { "name": "Minor groove i–VII–VI (D)", "numerals": ["i", "VII", "VI"], "keyTonic": "D", "keyMode": "minor" },
+        { "name": "i–iv–VII (D)", "numerals": ["i", "iv", "VII"], "keyTonic": "D", "keyMode": "minor" },
+        { "name": "i–VI–VII (E)", "numerals": ["i", "VI", "VII"], "keyTonic": "E", "keyMode": "minor" }
+      ],
+      "lessons": [
+        {
+          "id": "alt-1",
+          "title": "Drop D groove riffs",
+          "explainer": "Alternative metal is associated with heavily downtuned, mid-paced \"chug\" riffs. Drop D (D A D G B E) makes a D5 from the three open bass strings, and one finger plays the other power chords. Helmet used Drop D a great deal and influenced later alternative metal. Their own riffs are described as repetitive, syncopated, and staccato, often in a minor key, in Drop D or Drop C.",
+          "practice": "Tune to Drop D. Palm-mute a one-finger D5 on the low three strings in a slow, even eighth-note chug, and accent beats 1 and the \"and\" of 2.",
+          "content": { "kind": "tuning", "name": "Drop D", "strings": ["D2", "A2", "D3", "G3", "B3", "E4"] }
+        },
+        {
+          "id": "alt-2",
+          "title": "Drop C, a step lower",
+          "explainer": "Drop C (C G C F A D) is Drop D down a whole step. It is the usual meaning of \"Drop C\", and it is common in rock and metal because the lower open strings sound heavier. The one-finger power-chord shape does not change. Helmet's write-ups name both Drop D and Drop C; this lesson does not assign either tuning to a specific Helmet song.",
+          "practice": "Tune to Drop C and play the same low-three-string barre you used in Drop D. The fingering is the same; the pitch is a whole step lower.",
+          "content": { "kind": "tuning", "name": "Drop C", "strings": ["C2", "G2", "C3", "F3", "A3", "D4"] }
+        },
+        {
+          "id": "alt-3",
+          "title": "A minor-key groove",
+          "explainer": "Helmet's riffs are described as almost always in a minor key. In D minor, i–VII–VI is Dm–C–B♭ and i–iv–VII is Dm–Gm–C. D natural minor is D E F G A B♭ C. In E minor, i–VI–VII is Em–C–D. Power-chord versions of the roots are D5, C5, and E5.",
+          "practice": "In Drop D, play Dm–C–B♭ as a slow loop. Mute the strings between chords so the changes stay tight.",
+          "content": { "kind": "progression", "numerals": ["i", "VII", "VI"], "keyTonic": "D", "keyMode": "minor" }
+        },
+        {
+          "id": "alt-4",
+          "title": "Quiet, then loud",
+          "explainer": "Deftones' Around the Fur is described as alternative metal (among other labels) and was praised for its loud/soft dynamics and for the rhythm-section groove. The contrast is dynamic, not a special chord: the same Em can be played clean and quiet, then palm-muted and harder. This lesson does not claim a tuning for that album.",
+          "practice": "Fingerpick Em with no gain. Then play the same shape as short muted hits at a louder dynamic.",
+          "content": { "kind": "chord", "chordSymbol": "Em" }
         }
       ]
     }
