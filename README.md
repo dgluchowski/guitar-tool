@@ -1,5 +1,7 @@
 # Guitar Tool
 
+**[Try it live →](https://dgluchowski.github.io/guitar-tool/)**
+
 Guitar Tool is a free guitar learning app that runs entirely in the browser. It draws chords, scales, and voicings on a fretboard for standard and alternate tunings, plays them with audio generated on your device, and includes a tuner, a note trainer, and ear-training quizzes. No account and no uploads.
 
 ![Guitar Tool showing a C major chord on the fretboard in standard tuning](docs/screenshot.png)
