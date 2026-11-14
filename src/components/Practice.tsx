@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Tuner from './Tuner';
 import NoteTrainer from './NoteTrainer';
 import EarTraining from './EarTraining';
+import Metronome from './Metronome';
 
 interface Props {
   tuning: string[];
@@ -9,12 +10,13 @@ interface Props {
   numFrets: number;
 }
 
-type Tool = 'tuner' | 'trainer' | 'ear';
+type Tool = 'tuner' | 'trainer' | 'ear' | 'metronome';
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: 'tuner', label: 'Tuner' },
   { id: 'trainer', label: 'Note Trainer' },
   { id: 'ear', label: 'Ear Training' },
+  { id: 'metronome', label: 'Metronome' },
 ];
 
 export function Practice({ tuning, leftHanded, numFrets }: Props) {
@@ -33,6 +35,7 @@ export function Practice({ tuning, leftHanded, numFrets }: Props) {
       {tool === 'tuner' && <Tuner tuning={tuning} />}
       {tool === 'trainer' && <NoteTrainer tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />}
       {tool === 'ear' && <EarTraining />}
+      {tool === 'metronome' && <Metronome />}
     </div>
   );
 }

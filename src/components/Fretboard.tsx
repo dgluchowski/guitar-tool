@@ -365,7 +365,14 @@ export function Fretboard({
               );
             }
 
-            if (!showAllNotes) return null;
+            if (!showAllNotes) {
+              if (!click) return null;
+              return (
+                <g key={`hit-${i}-${col.fret}`} onClick={click} style={{ cursor: 'pointer' }}>
+                  <circle cx={cx} cy={cy} r={MARKER_R} fill="transparent" />
+                </g>
+              );
+            }
 
             return (
               <g key={`m-${i}-${col.fret}`} onClick={click} style={click ? { cursor: 'pointer' } : undefined}>

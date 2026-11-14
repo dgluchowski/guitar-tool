@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import Fretboard, { type HighlightMap } from './Fretboard';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Fretboard, { type CellMarker } from './Fretboard';
 import { useMicPitch } from '../hooks/useMicPitch';
-import { samePitchClass } from '../utils/notes';
+import { pitchClassAtFret, pitchClassesInWindow, samePitchClass } from '../utils/notes';
 
 interface Props {
   /** Current tuning's open-string notes, used for the optional fretboard hint. */
@@ -9,9 +9,6 @@ interface Props {
   leftHanded: boolean;
   numFrets: number;
 }
-
-const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
 /** Consecutive matching frames required to count a note as "played". */
 const CONFIRM_FRAMES = 3;
@@ -32,6 +29,12 @@ function pickNext(pool: string[], current: string | null): string {
 export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
   const [naturalsOnly, setNaturalsOnly] = useState(true);
   const [showHint, setShowHint] = useState(false);
+  const [tapMode, setTapMode] = useState(false);
+  const [stringFrom, setStringFrom] = useState(1);
+  const [stringTo, setStringTo] = useState(() => tuning.length);
+  const [fretFrom, setFretFrom] = useState(0);
+  const [fretTo, setFretTo] = useState(numFrets);
+  const [tapped, setTapped] = useState<string | null>(null);
   const [target, setTarget] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -50,7 +53,20 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
   // Boost quiet sources and accept slightly lower clarity, matching the tuner.
   const { status, error, note, start, stop } = useMicPitch({ minClarity: 0.85, gain: 5 });
   const listening = status === 'listening';
-  const pool = naturalsOnly ? NATURALS : CHROMATIC;
+  const stringLo = Math.min(stringFrom, stringTo, tuning.length) - 1;
+  const stringHi = Math.min(Math.max(stringFrom, stringTo), tuning.length) - 1;
+  const fretLo = Math.min(fretFrom, fretTo, numFrets);
+  const fretHi = Math.min(Math.max(fretFrom, fretTo), numFrets);
+  const pool = useMemo(
+    () =>
+      pitchClassesInWindow(
+        tuning,
+        [Math.max(0, stringLo), Math.max(0, stringHi)],
+        [fretLo, fretHi],
+        naturalsOnly,
+      ),
+    [fretHi, fretLo, naturalsOnly, stringHi, stringLo, tuning],
+  );
 
   const advance = useCallback(() => {
     pendingTimers.current.forEach(clearTimeout);
@@ -61,18 +77,21 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
   }, [pool]);
 
   const begin = () => {
+    if (!pool.length) return;
     clearPending();
     setScore(0);
     setStreak(0);
+    setTapped(null);
     setTarget(pickNext(pool, null));
     matchFramesRef.current = 0;
     lockedRef.current = false;
-    start();
+    if (!tapMode) start();
   };
 
   const end = () => {
     clearPending();
     stop();
+    setTapped(null);
     setTarget(null);
   };
 
@@ -86,7 +105,7 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
 
   // Evaluate each detected-note frame against the target.
   useEffect(() => {
-    if (!listening || !target || lockedRef.current) return;
+    if (tapMode || !listening || !target || lockedRef.current) return;
     if (note && samePitchClass(note.pc, target) && Math.abs(note.cents) <= CENTS_TOLERANCE) {
       matchFramesRef.current += 1;
       if (matchFramesRef.current >= CONFIRM_FRAMES) {
@@ -100,7 +119,7 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
     } else if (note && !samePitchClass(note.pc, target)) {
       matchFramesRef.current = 0;
     }
-  }, [note, listening, target, advance]);
+  }, [note, listening, tapMode, target, advance]);
 
   if (streak > best) setBest(streak);
 
@@ -110,18 +129,52 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
 
   const skip = () => {
     setStreak(0);
+    setTapped(null);
     advance();
   };
+
+  const inWindow = (stringIndex: number, fret: number) =>
+    stringIndex >= stringLo && stringIndex <= stringHi && fret >= fretLo && fret <= fretHi;
+
+  const answerPositions: CellMarker[] = [];
+  if (target) {
+    for (let s = Math.max(0, stringLo); s <= stringHi && s < tuning.length; s++) {
+      for (let f = fretLo; f <= fretHi; f++) {
+        if (samePitchClass(pitchClassAtFret(tuning[s], f), target)) {
+          answerPositions.push({ string: s, fret: f, color: '#F0E442', label: target });
+        }
+      }
+    }
+  }
+  const outsideStrings = tuning.map((_, i) => i).filter((i) => i < stringLo || i > stringHi);
+
+  const onTap = (stringIndex: number, fret: number) => {
+    if (!tapMode || !target || lockedRef.current || !inWindow(stringIndex, fret)) return;
+    const pc = pitchClassAtFret(tuning[stringIndex], fret);
+    if (samePitchClass(pc, target)) {
+      lockedRef.current = true;
+      setTapped(null);
+      setScore((s) => s + 1);
+      setStreak((st) => st + 1);
+      setFlash(true);
+      pendingTimers.current.push(setTimeout(() => setFlash(false), 450));
+      pendingTimers.current.push(setTimeout(advance, 650));
+    } else {
+      setTapped(pc);
+    }
+  };
+
+  const sessionOn = tapMode ? target != null : listening;
 
   return (
     <div className="stack">
       <div className="toolbar">
-        {listening ? (
+        {sessionOn ? (
           <button type="button" onClick={end} className="btn btn-danger">
             ■ End session
           </button>
         ) : (
-          <button type="button" onClick={begin} disabled={status === 'starting'} className="btn btn-primary">
+          <button type="button" onClick={begin} disabled={status === 'starting' || pool.length === 0} className="btn btn-primary">
             {status === 'starting' ? 'Starting…' : '▶ Start session'}
           </button>
         )}
@@ -129,14 +182,84 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
           <input
             type="checkbox"
             checked={naturalsOnly}
-            disabled={listening}
+            disabled={sessionOn}
             onChange={(e) => setNaturalsOnly(e.target.checked)}
           />
           Naturals only (no sharps/flats)
         </label>
+        <label className="check" title="Find the note by clicking the fretboard instead of playing it.">
+          <input
+            type="checkbox"
+            checked={tapMode}
+            disabled={sessionOn}
+            onChange={(e) => setTapMode(e.target.checked)}
+          />
+          Tap the fretboard
+        </label>
         <label className="check" title="New to guitar? Show where the target note is on the fretboard.">
           <input type="checkbox" checked={showHint} onChange={(e) => setShowHint(e.target.checked)} />
           Show fretboard hint
+        </label>
+      </div>
+
+      <div className="control-row">
+        <label className="field">
+          Low string
+          <select
+            value={Math.min(stringFrom, tuning.length)}
+            disabled={sessionOn}
+            onChange={(e) => setStringFrom(Number(e.target.value))}
+            className="control"
+            aria-label="First string in the drill, 1 is lowest"
+          >
+            {tuning.map((open, i) => (
+              <option key={open + i} value={i + 1}>
+                {i + 1} · {open}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          High string
+          <select
+            value={Math.min(stringTo, tuning.length)}
+            disabled={sessionOn}
+            onChange={(e) => setStringTo(Number(e.target.value))}
+            className="control"
+            aria-label="Last string in the drill, 1 is lowest"
+          >
+            {tuning.map((open, i) => (
+              <option key={open + i} value={i + 1}>
+                {i + 1} · {open}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          Fret from
+          <input
+            type="number"
+            min={0}
+            max={numFrets}
+            value={Math.min(fretFrom, numFrets)}
+            disabled={sessionOn}
+            onChange={(e) => setFretFrom(Math.max(0, Math.min(numFrets, Number(e.target.value))))}
+            className="control"
+            aria-label="Lowest fret in the drill"
+          />
+        </label>
+        <label className="field">
+          Fret to
+          <input
+            type="number"
+            min={0}
+            max={numFrets}
+            value={Math.min(fretTo, numFrets)}
+            disabled={sessionOn}
+            onChange={(e) => setFretTo(Math.max(0, Math.min(numFrets, Number(e.target.value))))}
+            className="control"
+            aria-label="Highest fret in the drill"
+          />
         </label>
       </div>
 
@@ -155,18 +278,20 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
       <div className={flash ? 'panel hero-card is-correct' : 'panel hero-card'}>
         {target ? (
           <>
-            <div className="muted">Play this note (any octave)</div>
+            <div className="muted">{tapMode ? 'Tap this note inside the window' : 'Play this note (any octave)'}</div>
             <div className="hero-note">{target}</div>
             <div style={{ minHeight: '1.5rem' }}>
               {flash ? (
                 <span className="ok-text">Correct! ✓</span>
-              ) : note ? (
+              ) : tapMode && tapped ? (
+                <span className="faint">that’s {tapped}</span>
+              ) : note && !tapMode ? (
                 <span className="faint">
                   heard {note.pc}
                   {note.octave}…
                 </span>
               ) : (
-                <span className="faint">listening…</span>
+                <span className="faint">{tapMode ? 'tap a fret…' : 'listening…'}</span>
               )}
             </div>
           </>
@@ -178,25 +303,29 @@ export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
         )}
       </div>
 
-      {listening && target && (
+      {sessionOn && target && (
         <button type="button" onClick={skip} className="btn" style={{ alignSelf: 'center' }}>
           Skip ↦ (resets streak)
         </button>
       )}
 
-      {showHint && target && (
+      {(tapMode || showHint) && target && (
         <div className="panel">
           <div className="hint hint-flush" style={{ marginBottom: 'var(--space-3)' }}>
-            Every <span className="strong" style={{ color: 'var(--accent-text)' }}>{target}</span> on the
-            fretboard — play any one of them.
+            {tapMode
+              ? 'Tap the fret you think holds the note. Strings outside the drill are muted.'
+              : 'Where the note sits inside the drill window.'}
+            {showHint ? ' Highlighted frets are the answer.' : ''}
           </div>
           <Fretboard
             tuning={tuning}
             numFrets={numFrets}
-            fretRange={[0, numFrets]}
+            fretRange={[fretLo, Math.min(fretHi, numFrets)]}
             leftHanded={leftHanded}
             showAllNotes={false}
-            highlightedNotes={{ [target]: { color: '#F0E442', label: target } } as HighlightMap}
+            positions={showHint ? answerPositions : undefined}
+            mutedStrings={outsideStrings}
+            onCellClick={tapMode ? (stringIndex, fret) => onTap(stringIndex, fret) : undefined}
           />
         </div>
       )}
