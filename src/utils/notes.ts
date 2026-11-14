@@ -199,6 +199,30 @@ export function spellNoteName(note: string, flats: boolean): string {
   return oct == null ? pc : `${pc}${oct}`;
 }
 
+/**
+ * Pitch classes that actually sit inside a string and fret window.
+ * String indexes are 0-based, low to high. Naturals drop any name with a sharp.
+ */
+export function pitchClassesInWindow(
+  tuning: string[],
+  strings: [number, number],
+  frets: [number, number],
+  naturalsOnly: boolean,
+): string[] {
+  const [stringLo, stringHi] = strings[0] <= strings[1] ? strings : [strings[1], strings[0]];
+  const [fretLo, fretHi] = frets[0] <= frets[1] ? frets : [frets[1], frets[0]];
+  const found = new Set<number>();
+  for (let s = Math.max(0, stringLo); s <= Math.min(tuning.length - 1, stringHi); s++) {
+    for (let f = Math.max(0, fretLo); f <= fretHi; f++) {
+      const c = Note.chroma(pitchClassAtFret(tuning[s], f));
+      if (c == null) continue;
+      if (naturalsOnly && SHARP_NAMES[c].includes('#')) continue;
+      found.add(c);
+    }
+  }
+  return SHARP_NAMES.filter((_, chroma) => found.has(chroma));
+}
+
 /** Respell the root of a chord symbol, leaving the quality suffix alone. */
 export function spellChordSymbol(symbol: string, flats: boolean): string {
   const match = symbol.match(/^([A-G][#b]?)(.*)$/);

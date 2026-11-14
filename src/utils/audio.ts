@@ -45,6 +45,12 @@ function later(ms: number, fn: () => void): void {
   timers.push(setTimeout(fn, Math.max(0, ms)));
 }
 
+/** One metronome click. The downbeat is the lower, heavier pitch. */
+export async function playMetronomeClick(accent: boolean): Promise<void> {
+  await ensureAudio();
+  click!.triggerAttackRelease(accent ? 'C2' : 'G1', '32n', Tone!.now() + 0.005);
+}
+
 /** Stop all sound and cancel any not-yet-sounded notes / callbacks. */
 export function stopAll(): void {
   playbackEpoch++;

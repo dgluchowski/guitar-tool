@@ -4,6 +4,7 @@ import {
   frequencyToNote,
   midiOf,
   noteToFrequency,
+  pitchClassesInWindow,
   prefersFlatKey,
   spellChordSymbol,
   spellPitchClass,
@@ -79,6 +80,14 @@ describe('extended-range tunings', () => {
   it('recognises a preset when the pitches and octaves match', () => {
     expect(findTuningPreset(['B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'])?.id).toBe('standard-7');
     expect(findTuningPreset(['E1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'])?.id).toBe('drop-e');
+  });
+});
+
+describe('pitchClassesInWindow', () => {
+  it('limits a drill to naturals on the low string', () => {
+    const standard = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+    expect(pitchClassesInWindow(standard, [0, 0], [0, 4], true)).toEqual(['E', 'F', 'G']);
+    expect(pitchClassesInWindow(standard, [4, 5], [0, 0], false)).toEqual(['E', 'B']);
   });
 });
 
