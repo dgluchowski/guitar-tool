@@ -19,17 +19,10 @@ export function Practice({ tuning }: Props) {
   const [tool, setTool] = useState<Tool>('tuner');
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-1 self-start rounded-lg bg-stone-100 p-1 dark:bg-stone-800">
+    <div className="stack">
+      <div className="seg">
         {TOOLS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTool(t.id)}
-            aria-pressed={tool === t.id}
-            className={`rounded px-4 py-1.5 text-sm font-medium ${
-              tool === t.id ? 'bg-white shadow dark:bg-stone-700' : 'text-stone-500'
-            }`}
-          >
+          <button key={t.id} type="button" onClick={() => setTool(t.id)} aria-pressed={tool === t.id}>
             {t.label}
           </button>
         ))}

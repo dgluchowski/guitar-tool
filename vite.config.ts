@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'GuitarTool',
         description:
           'Chords, scales, voicings, progressions, a tuner and a note-trainer for any tuning — 100% in your browser.',
-        theme_color: '#1c1917',
-        background_color: '#1c1917',
+        theme_color: '#121110',
+        background_color: '#121110',
         display: 'standalone',
         orientation: 'landscape',
         icons: [

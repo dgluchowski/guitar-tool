@@ -20,9 +20,31 @@ const TABS: { id: View; label: string }[] = [
   { id: 'practice', label: 'Practice' },
 ];
 
+const THEME_COLOR = { dark: '#121110', light: '#f4f1eb' };
+
+type ThemeChoice = 'light' | 'dark' | null;
+
+function readStoredTheme(): ThemeChoice {
+  try {
+    const saved = localStorage.getItem('gt-dark');
+    if (saved === '1') return 'dark';
+    if (saved === '0') return 'light';
+  } catch {
+    // Private mode can block storage; fall through to the system preference.
+  }
+  return null;
+}
+
+function systemPrefersDark(): boolean {
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+}
+
 export default function App() {
   const [state, setState] = useState<AppState>(() => ({ ...DEFAULT_STATE, ...decodeState(window.location.hash) }));
-  const [dark, setDark] = useState(() => localStorage.getItem('gt-dark') === '1');
+  // null means "no explicit choice yet" — follow the system, and only persist after a toggle.
+  const [themeChoice, setThemeChoice] = useState<ThemeChoice>(readStoredTheme);
+  const [systemDark, setSystemDark] = useState(systemPrefersDark);
+  const dark = themeChoice === null ? systemDark : themeChoice === 'dark';
 
   const update = (patch: Partial<AppState>) => setState((s) => ({ ...s, ...patch }));
 
@@ -32,9 +54,27 @@ export default function App() {
   }, [state]);
 
   useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => setSystemDark(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('gt-dark', dark ? '1' : '0');
+    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? THEME_COLOR.dark : THEME_COLOR.light);
   }, [dark]);
+
+  const toggleTheme = () => {
+    const next = dark ? 'light' : 'dark';
+    setThemeChoice(next);
+    try {
+      localStorage.setItem('gt-dark', next === 'dark' ? '1' : '0');
+    } catch {
+      // Ignore storage failures; the in-memory choice still applies this session.
+    }
+  };
 
   const selectChord = (symbol: string) => {
     const { root, quality } = splitChordSymbol(symbol);
@@ -42,32 +82,30 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-stone-50 to-stone-100 text-stone-900 dark:from-stone-950 dark:to-stone-900 dark:text-stone-100">
-      <div className="app-shell mx-auto max-w-6xl py-6 sm:py-8">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img src="app-icon.svg" alt="" className="h-11 w-11 rounded-xl shadow-sm ring-1 ring-black/5" />
+    <div className="app-bg">
+      <div className="app-shell">
+        <header className="app-header">
+          <div className="brand">
+            <img src="app-icon.svg" alt="" className="brand-mark" />
             <div>
-              <h1 className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent dark:from-violet-400 dark:to-fuchsia-400">
-                Guitar Tool
-              </h1>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
-                Chords, scales, voicings &amp; progressions for any tuning.
-              </p>
+              <h1>Guitar Tool</h1>
+              <p>Chords, scales, voicings &amp; progressions for any tuning.</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="header-actions">
             <button
+              type="button"
               onClick={() => update({ leftHanded: !state.leftHanded })}
-              className="rounded-lg border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-white dark:border-stone-600 dark:bg-stone-800/70 dark:hover:bg-stone-800"
+              className="btn"
               aria-pressed={state.leftHanded}
               aria-label={`Handedness: ${state.leftHanded ? 'left-handed' : 'right-handed'}. Click to toggle.`}
             >
               {state.leftHanded ? '🎸 Left' : '🎸 Right'}
             </button>
             <button
-              onClick={() => setDark((v) => !v)}
-              className="rounded-lg border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-white dark:border-stone-600 dark:bg-stone-800/70 dark:hover:bg-stone-800"
+              type="button"
+              onClick={toggleTheme}
+              className="btn"
               aria-pressed={dark}
               aria-label={`Theme: ${dark ? 'dark' : 'light'}. Click to toggle.`}
             >
@@ -76,7 +114,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className="mb-4 rounded-xl border border-stone-200/80 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-stone-700/80 dark:bg-stone-800/50">
+        <div className="panel mb">
           <TuningSelector
             tuning={state.tuning}
             onChange={(tuning) => update({ tuning })}
@@ -85,17 +123,14 @@ export default function App() {
           />
         </div>
 
-        <nav aria-label="Views" className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-stone-200/80 bg-stone-100/80 p-1 shadow-sm backdrop-blur dark:border-stone-700/80 dark:bg-stone-800/60">
+        <nav aria-label="Views" className="tabs">
           {TABS.map((t) => (
             <button
               key={t.id}
+              type="button"
               onClick={() => update({ view: t.id })}
               aria-current={state.view === t.id ? 'page' : undefined}
-              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                state.view === t.id
-                  ? 'bg-white text-violet-700 shadow-sm dark:bg-stone-700 dark:text-violet-300'
-                  : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
-              }`}
+              className="tab"
             >
               {t.label}
             </button>
@@ -103,7 +138,7 @@ export default function App() {
         </nav>
 
         <main>
-        <Suspense fallback={<div className="py-12 text-center text-sm text-stone-400">Loading…</div>}>
+        <Suspense fallback={<div className="loading">Loading…</div>}>
         {state.view === 'explore' && (
           <Explore
             mode={state.mode}
@@ -159,7 +194,7 @@ export default function App() {
         </Suspense>
         </main>
 
-        <footer className="mt-8 text-center text-xs text-stone-400">
+        <footer className="app-footer">
           Open-source guitar learning tool · audio is generated locally · share this page's URL to share your view.
         </footer>
       </div>

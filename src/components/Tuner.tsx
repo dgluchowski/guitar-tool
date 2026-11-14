@@ -75,22 +75,18 @@ export function Tuner({ tuning }: Props) {
   const highlightIdx = lockedIdx ?? nearestIdx;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="stack">
+      <div className="toolbar">
         {listening ? (
-          <button onClick={stop} className="rounded-lg shadow-sm transition-colors bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          <button type="button" onClick={stop} className="btn btn-danger">
             ■ Stop microphone
           </button>
         ) : (
-          <button
-            onClick={start}
-            disabled={status === 'starting'}
-            className="rounded-lg shadow-sm transition-colors bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:bg-stone-400"
-          >
+          <button type="button" onClick={start} disabled={status === 'starting'} className="btn btn-primary">
             {status === 'starting' ? 'Starting…' : '● Start microphone'}
           </button>
         )}
-        <label className="flex items-center gap-2 text-sm" title="Boost a quiet input (e.g. an unplugged electric). Lower it if the reading jumps around.">
+        <label className="field-inline" title="Boost a quiet input (e.g. an unplugged electric). Lower it if the reading jumps around.">
           Sensitivity
           <input
             type="range"
@@ -100,61 +96,56 @@ export function Tuner({ tuning }: Props) {
             value={gain}
             onChange={(e) => setGain(Number(e.target.value))}
           />
-          <span className="w-9 tabular-nums text-stone-500">{gain}×</span>
+          <span className="mono bpm">{gain}×</span>
         </label>
       </div>
-      <p className="text-sm text-stone-500">
+      <p className="muted">
         {targetNote
           ? `Locked to ${targetNote} — tune that string until the dot is centered and green.`
           : 'Pick a string below to lock onto it, or leave on Auto and play one string at a time. Audio stays on your device.'}
       </p>
 
       {error && (
-        <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+        <div role="alert" className="alert">
           {error}
         </div>
       )}
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-6 dark:border-stone-700 dark:bg-stone-800/50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-center">
-            <div className={`text-6xl font-bold tabular-nums ${inTune ? 'text-green-500' : ''}`}>
+      <div className="panel">
+        <div className="center">
+          <div>
+            <div className={inTune ? 'hero-note ok-text' : 'hero-note'}>
               {bigPc}
-              {bigOct && <span className="text-2xl text-stone-400">{bigOct}</span>}
+              {bigOct && <span className="faint" style={{ fontSize: '0.42em' }}>{bigOct}</span>}
             </div>
-            <div className="mt-1 h-5 text-sm text-stone-500">
+            <div className="muted" style={{ minHeight: '1.25rem' }}>
               {hasReading ? `${cents > 0 ? '+' : ''}${cents} cents` : listening ? 'Listening…' : 'Mic off'}
             </div>
           </div>
 
           {/* Cents meter */}
-          <div className="w-full max-w-md">
-            <div className="relative h-10 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
+          <div style={{ width: 'min(100%, 28rem)' }}>
+            <div className="meter">
               {/* in-tune band (±5 cents) — dot is green exactly when it's inside this band */}
-              <div className="absolute inset-y-0 bg-green-500/25" style={{ left: '45%', width: '10%' }} />
-              <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-green-500/70" />
+              <div className="meter-band" />
+              <div className="meter-center" />
               {hasReading && (
-                <div
-                  className={`absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full shadow ${
-                    inTune ? 'bg-green-500' : 'bg-amber-500'
-                  }`}
-                  style={{ left: `${needlePct}%` }}
-                />
+                <div className={inTune ? 'meter-dot is-ok' : 'meter-dot is-off'} style={{ left: `${needlePct}%` }} />
               )}
             </div>
-            <div className="mt-1 flex justify-between text-xs text-stone-400">
+            <div className="meter-scale">
               <span>♭ -50</span>
               <span>0</span>
               <span>+50 ♯</span>
             </div>
           </div>
 
-          <div className="h-6 text-sm">
+          <div style={{ minHeight: '1.5rem' }}>
             {hasReading ? (
               inTune ? (
-                <span className="font-medium text-green-600 dark:text-green-400">In tune ✓</span>
+                <span className="ok-text">In tune ✓</span>
               ) : (
-                <span className="text-stone-600 dark:text-stone-300">{cents > 0 ? 'Too sharp — tune down ↓' : 'Too flat — tune up ↑'}</span>
+                <span>{cents > 0 ? 'Too sharp — tune down ↓' : 'Too flat — tune up ↑'}</span>
               )
             ) : null}
           </div>
@@ -162,33 +153,26 @@ export function Tuner({ tuning }: Props) {
       </div>
 
       {/* String selector: Auto + one button per open string */}
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <div className="chip-row" style={{ justifyContent: 'center' }}>
         <button
+          type="button"
           onClick={() => setTargetIdx(null)}
           aria-pressed={lockedIdx == null}
-          className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-            lockedIdx == null
-              ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300'
-              : 'border-stone-200 text-stone-500 hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800'
-          }`}
+          className="chip"
         >
           Auto
         </button>
         {tuning.map((s, i) => {
           const selected = lockedIdx === i;
           const nearest = lockedIdx == null && highlightIdx === i;
+          const tone = selected && inTune ? ' is-correct' : nearest ? ' is-near' : '';
           return (
             <button
               key={i}
+              type="button"
               onClick={() => setTargetIdx(i)}
               aria-pressed={selected}
-              className={`rounded-lg border px-3 py-2 font-mono text-sm transition-colors ${
-                selected
-                  ? `${inTune ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300'}`
-                  : nearest
-                    ? 'border-violet-400 bg-violet-50/60 dark:bg-violet-950/50'
-                    : 'border-stone-200 hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800'
-              }`}
+              className={`chip mono${tone}`}
             >
               {s}
             </button>
@@ -197,7 +181,9 @@ export function Tuner({ tuning }: Props) {
       </div>
 
       {listening && (
-        <div className="text-center text-xs text-stone-400">signal clarity: {(clarity * 100).toFixed(0)}%</div>
+        <div className="hint" style={{ textAlign: 'center' }}>
+          signal clarity: {(clarity * 100).toFixed(0)}%
+        </div>
       )}
     </div>
   );

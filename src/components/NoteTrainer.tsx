@@ -112,22 +112,18 @@ export function NoteTrainer({ tuning }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="stack">
+      <div className="toolbar">
         {listening ? (
-          <button onClick={end} className="rounded-lg shadow-sm transition-colors bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          <button type="button" onClick={end} className="btn btn-danger">
             ■ End session
           </button>
         ) : (
-          <button
-            onClick={begin}
-            disabled={status === 'starting'}
-            className="rounded-lg shadow-sm transition-colors bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:bg-stone-400"
-          >
+          <button type="button" onClick={begin} disabled={status === 'starting'} className="btn btn-primary">
             {status === 'starting' ? 'Starting…' : '▶ Start session'}
           </button>
         )}
-        <label className="flex items-center gap-2 text-sm">
+        <label className="check">
           <input
             type="checkbox"
             checked={naturalsOnly}
@@ -136,66 +132,60 @@ export function NoteTrainer({ tuning }: Props) {
           />
           Naturals only (no sharps/flats)
         </label>
-        <label className="flex items-center gap-2 text-sm" title="New to guitar? Show where the target note is on the fretboard.">
+        <label className="check" title="New to guitar? Show where the target note is on the fretboard.">
           <input type="checkbox" checked={showHint} onChange={(e) => setShowHint(e.target.checked)} />
           Show fretboard hint
         </label>
       </div>
 
       {error && (
-        <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+        <div role="alert" className="alert">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3 text-center">
+      <div className="stat-grid">
         <Stat label="Score" value={score} />
         <Stat label="Streak" value={streak} />
         <Stat label="Best streak" value={best} />
       </div>
 
-      <div
-        className={`rounded-lg border p-8 text-center transition-colors ${
-          flash
-            ? 'border-green-500 bg-green-50 dark:bg-green-950'
-            : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800/50'
-        }`}
-      >
+      <div className={flash ? 'panel hero-card is-correct' : 'panel hero-card'}>
         {target ? (
           <>
-            <div className="text-sm text-stone-500">Play this note (any octave)</div>
-            <div className="my-2 text-7xl font-bold">{target}</div>
-            <div className="h-6 text-sm">
+            <div className="muted">Play this note (any octave)</div>
+            <div className="hero-note">{target}</div>
+            <div style={{ minHeight: '1.5rem' }}>
               {flash ? (
-                <span className="font-semibold text-green-600 dark:text-green-400">Correct! ✓</span>
+                <span className="ok-text">Correct! ✓</span>
               ) : note ? (
-                <span className="text-stone-400">heard {note.pc}{note.octave}…</span>
+                <span className="faint">
+                  heard {note.pc}
+                  {note.octave}…
+                </span>
               ) : (
-                <span className="text-stone-400">listening…</span>
+                <span className="faint">listening…</span>
               )}
             </div>
           </>
         ) : (
-          <div className="text-stone-500">
-            Press <span className="font-medium">Start session</span> and play the note shown. Audio stays on your
+          <div className="muted">
+            Press <span className="strong">Start session</span> and play the note shown. Audio stays on your
             device.
           </div>
         )}
       </div>
 
       {listening && target && (
-        <button
-          onClick={skip}
-          className="self-center rounded border border-stone-300 px-4 py-1 text-sm text-stone-500 hover:bg-stone-50 dark:border-stone-600 dark:hover:bg-stone-800"
-        >
+        <button type="button" onClick={skip} className="btn" style={{ alignSelf: 'center' }}>
           Skip ↦ (resets streak)
         </button>
       )}
 
       {showHint && target && (
-        <div className="rounded-xl border border-stone-200/80 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800/50">
-          <div className="mb-2 text-sm text-stone-500">
-            Every <span className="font-semibold text-violet-600 dark:text-violet-400">{target}</span> on the
+        <div className="panel">
+          <div className="hint hint-flush" style={{ marginBottom: 'var(--space-3)' }}>
+            Every <span className="strong" style={{ color: 'var(--accent-text)' }}>{target}</span> on the
             fretboard — play any one of them.
           </div>
           <Fretboard
@@ -203,7 +193,7 @@ export function NoteTrainer({ tuning }: Props) {
             numFrets={12}
             fretRange={[0, 12]}
             showAllNotes={false}
-            highlightedNotes={{ [target]: { color: '#8b5cf6', label: target } } as HighlightMap}
+            highlightedNotes={{ [target]: { color: '#F0E442', label: target } } as HighlightMap}
           />
         </div>
       )}
@@ -213,9 +203,9 @@ export function NoteTrainer({ tuning }: Props) {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-3 dark:border-stone-700 dark:bg-stone-800/50">
-      <div className="text-2xl font-bold tabular-nums">{value}</div>
-      <div className="text-xs text-stone-400">{label}</div>
+    <div className="stat">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
 }

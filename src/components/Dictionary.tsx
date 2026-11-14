@@ -51,18 +51,19 @@ export function Dictionary({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium">
+    <div className="stack">
+      <div className="panel toolbar">
+        <label className="check">
           <input type="checkbox" checked={filterByKey} onChange={(e) => setFilterByKey(e.target.checked)} />
           Filter by key
         </label>
         {filterByKey && (
-          <div className="flex items-center gap-2 text-sm">
+          <div className="toolbar">
             <select
               value={keyTonic}
               onChange={(e) => onKeyChange({ keyTonic: e.target.value })}
-              className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+              className="control"
+              aria-label="Key tonic"
             >
               {ROOTS.map((r) => (
                 <option key={r} value={r}>
@@ -73,7 +74,8 @@ export function Dictionary({
             <select
               value={keyMode}
               onChange={(e) => onKeyChange({ keyMode: e.target.value as KeyMode })}
-              className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+              className="control"
+              aria-label="Key mode"
             >
               <option value="major">major</option>
               <option value="minor">minor</option>
@@ -81,69 +83,61 @@ export function Dictionary({
           </div>
         )}
         {!filterByKey && (
-          <label className="flex items-center gap-2 text-sm">
+          <label className="check">
             <input type="checkbox" checked={showAdvanced} onChange={(e) => setShowAdvanced(e.target.checked)} />
             Show advanced qualities
           </label>
         )}
-        <label className="flex items-center gap-2 text-sm" title="When on, each chord stops the previous one. Turn off to layer chords and hear them together.">
+        <label className="check" title="When on, each chord stops the previous one. Turn off to layer chords and hear them together.">
           <input type="checkbox" checked={oneAtATime} onChange={(e) => setOneAtATime(e.target.checked)} />
           One chord at a time
         </label>
       </div>
 
       {filterByKey ? (
-        <div className="rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-          <div className="mb-3 text-sm font-medium">
+        <div className="panel">
+          <div className="panel-title">
             Diatonic chords of {keyTonic} {keyMode}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="chip-row">
             {diatonic.map((d) => (
               <button
                 key={d.roman}
+                type="button"
                 onClick={() => select(d.symbol)}
                 aria-pressed={d.symbol === currentSymbol}
-                className={`flex flex-col items-center rounded-lg border px-4 py-2 ${
-                  d.symbol === currentSymbol
-                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'
-                    : 'border-stone-300 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800'
-                }`}
+                className="chip"
               >
-                <span className="text-xs text-stone-400">{d.roman}</span>
-                <span className="font-medium">{d.symbol}</span>
+                <span className="faint small">{d.roman}</span>
+                <span>{d.symbol}</span>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-          <table className="border-collapse text-sm">
+        <div className="panel table-scroll">
+          <table className="dict-table">
             <thead>
               <tr>
-                <th className="p-1"></th>
+                <th className="corner"></th>
                 {qualities.map((q) => (
-                  <th key={q.label} className="p-1 text-xs font-medium text-stone-500">
-                    {q.label}
-                  </th>
+                  <th key={q.label}>{q.label}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {ROOTS.map((r) => (
                 <tr key={r}>
-                  <th className="p-1 pr-2 text-right font-medium text-stone-500">{r}</th>
+                  <th className="root">{r}</th>
                   {qualities.map((q) => {
                     const symbol = `${r}${q.suffix}`;
                     return (
-                      <td key={q.label} className="p-0.5">
+                      <td key={q.label}>
                         <button
+                          type="button"
                           onClick={() => select(symbol)}
                           aria-pressed={symbol === currentSymbol}
-                          className={`w-full rounded px-2 py-1 font-mono ${
-                            symbol === currentSymbol
-                              ? 'bg-violet-600 text-white'
-                              : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700'
-                          }`}
+                          className="dict-cell"
                         >
                           {symbol}
                         </button>

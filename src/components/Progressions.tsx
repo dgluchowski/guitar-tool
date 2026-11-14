@@ -89,15 +89,11 @@ export function Progressions({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium">
+    <div className="stack">
+      <div className="panel toolbar">
+        <label className="field-inline">
           Key
-          <select
-            value={keyTonic}
-            onChange={(e) => onKeyChange({ keyTonic: e.target.value })}
-            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
-          >
+          <select value={keyTonic} onChange={(e) => onKeyChange({ keyTonic: e.target.value })} className="control">
             {ROOTS.map((r) => (
               <option key={r} value={r}>
                 {r}
@@ -107,14 +103,15 @@ export function Progressions({
           <select
             value={keyMode}
             onChange={(e) => onKeyChange({ keyMode: e.target.value as KeyMode })}
-            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+            className="control"
+            aria-label="Key mode"
           >
             <option value="major">major</option>
             <option value="minor">minor</option>
           </select>
         </label>
 
-        <label className="flex items-center gap-2 text-sm font-medium">
+        <label className="field-inline">
           Preset
           <select
             value={currentPreset}
@@ -122,7 +119,7 @@ export function Progressions({
               const p = PRESETS.find((x) => x.label === e.target.value);
               if (p) onProgressionChange(p.numerals);
             }}
-            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
+            className="control"
           >
             <option value="">Choose…</option>
             {PRESETS.map((p) => (
@@ -133,71 +130,49 @@ export function Progressions({
           </select>
         </label>
 
-        <label className="flex items-center gap-2 text-sm font-medium">
+        <label className="field-inline">
           Tempo
-          <input
-            type="range"
-            min={40}
-            max={200}
-            value={bpm}
-            onChange={(e) => setBpm(Number(e.target.value))}
-          />
-          <span className="w-12 tabular-nums">{bpm} bpm</span>
+          <input type="range" min={40} max={200} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} />
+          <span className="mono bpm">{bpm} bpm</span>
         </label>
 
         {isPlaying ? (
-          <button onClick={stop} className="rounded-lg shadow-sm transition-colors bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700">
+          <button type="button" onClick={stop} className="btn btn-danger">
             ■ Stop
           </button>
         ) : (
-          <button onClick={play} className="rounded-lg shadow-sm transition-colors bg-violet-600 px-3 py-1 text-sm font-medium text-white hover:bg-violet-700">
+          <button type="button" onClick={play} className="btn btn-primary">
             ▶ Play progression
           </button>
         )}
       </div>
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-        <div className="mb-2 text-sm font-medium">Progression (Roman numerals)</div>
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="panel">
+        <div className="panel-title">Progression (Roman numerals)</div>
+        <div className="chip-row">
           {progression.map((rn, i) => (
-            <div
-              key={i}
-              className={`flex flex-col items-center rounded-lg border p-2 ${
-                playingIndex === i ? 'border-violet-500 bg-violet-50 dark:bg-violet-950' : 'border-stone-200 dark:border-stone-700'
-              }`}
-            >
+            <div key={i} className={playingIndex === i ? 'numeral is-active' : 'numeral'}>
               <input
                 value={rn}
                 onChange={(e) => editNumeral(i, e.target.value)}
-                className="w-16 rounded bg-stone-100 dark:bg-stone-800 px-2 py-1 text-center font-mono text-sm"
+                className="control numeral-input"
                 aria-label={`Chord ${i + 1} numeral`}
               />
-              <button
-                onClick={() => onSelectChord(chords[i])}
-                className="mt-1 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
-              >
+              <button type="button" onClick={() => onSelectChord(chords[i])} className="link">
                 {chords[i] || '?'}
               </button>
             </div>
           ))}
-          <button
-            onClick={() => onProgressionChange([...progression, 'I'])}
-            className="rounded-lg border border-dashed border-stone-300 dark:border-stone-600 px-3 py-2 text-sm text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-800"
-          >
+          <button type="button" onClick={() => onProgressionChange([...progression, 'I'])} className="btn">
             + Add
           </button>
           {progression.length > 1 && (
-            <button
-              onClick={() => onProgressionChange(progression.slice(0, -1))}
-              className="rounded-lg border border-stone-300 dark:border-stone-600 px-3 py-2 text-sm text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-800"
-            >
+            <button type="button" onClick={() => onProgressionChange(progression.slice(0, -1))} className="btn">
               − Remove
             </button>
           )}
         </div>
-        <p className="mt-2 text-xs text-stone-400">
-          Edit numerals (e.g. I, ii, V7, vii°, bVII). Click a chord name to show it on the fretboard.
-        </p>
+        <p className="hint">Edit numerals (e.g. I, ii, V7, vii°, bVII). Click a chord name to show it on the fretboard.</p>
       </div>
 
       <ChordView chordSymbol={selectedChord} tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />

@@ -12,8 +12,6 @@ interface Props {
   numFrets: number;
 }
 
-const fretStr = (frets: (number | null)[]) => frets.map((f) => (f === null ? 'x' : f)).join('');
-
 export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) {
   const [selected, setSelected] = useState<number | null>(0);
 
@@ -68,23 +66,20 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
   };
 
   if (!noteSet.pitches.length) {
-    return <div className="text-sm text-red-500">Unknown chord: {chordSymbol}</div>;
+    return <div className="alert">Unknown chord: {chordSymbol}</div>;
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-lg font-semibold">{noteSet.name}</span>
-        <span className="text-sm text-stone-500">{noteSet.pitches.map((p) => p.pc).join(' · ')}</span>
-        <button
-          onClick={playSelectedShape}
-          className="rounded-lg shadow-sm transition-colors bg-violet-600 px-3 py-1 text-sm font-medium text-white hover:bg-violet-700"
-        >
+    <div className="stack">
+      <div className="toolbar">
+        <span className="title">{noteSet.name}</span>
+        <span className="muted">{noteSet.pitches.map((p) => p.pc).join(' · ')}</span>
+        <button type="button" onClick={playSelectedShape} className="btn btn-primary">
           ▶ Play
         </button>
       </div>
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
+      <div className="panel">
         <Fretboard
           tuning={tuning}
           numFrets={numFrets}
@@ -95,38 +90,41 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
           mutedStrings={mutedStrings}
           showAllNotes={!showing}
         />
-        <div className="mt-3 flex flex-wrap gap-3 text-xs">
+        <div className="legend">
           {noteSet.pitches.map((p) => (
-            <span key={p.pc} className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded-full" style={{ background: colorForDegree(p.degree) }} />
-              {p.pc} <span className="text-stone-400">({p.degree})</span>
+            <span key={p.pc} className="legend-item">
+              <span className="swatch" style={{ background: colorForDegree(p.degree) }} />
+              {p.pc} <span className="faint">({p.degree})</span>
             </span>
           ))}
         </div>
       </div>
 
       {shapes.length > 0 && (
-        <div className="rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-          <div className="mb-2 text-sm font-medium">Playable voicings (best first)</div>
-          <div className="flex flex-wrap gap-2">
+        <div className="panel">
+          <div className="panel-title">Playable voicings (best first)</div>
+          <div className="voicing-list">
             {shapes.map((s, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setSelected(i)}
                 aria-pressed={selected === i}
-                className={`rounded-lg border px-3 py-2 font-mono text-sm ${
-                  selected === i
-                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'
-                    : 'border-stone-300 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800'
-                }`}
+                className="voicing"
                 title={`${s.fingers} finger(s), base fret ${s.baseFret}`}
               >
-                {fretStr(s.frets)}
-                <span className="ml-2 text-xs text-stone-400">{s.fingers}f</span>
+                <span className="voicing-frets">
+                  {s.frets.map((f, si) => (
+                    <span key={si} className={f === null ? 'voicing-cell is-mute' : 'voicing-cell'}>
+                      {f === null ? 'x' : f}
+                    </span>
+                  ))}
+                </span>
+                <span className="voicing-meta">{s.fingers}f</span>
               </button>
             ))}
           </div>
-          <p className="mt-2 text-xs text-stone-400">Strings low → high; x = muted. Click to show on the board.</p>
+          <p className="hint">Strings low → high; x = muted. Click to show on the board.</p>
         </div>
       )}
     </div>
