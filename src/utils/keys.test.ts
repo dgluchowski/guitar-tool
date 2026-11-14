@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { CHORD_QUALITIES } from './catalog';
 import { resolveNumeral, resolveProgression, diatonicChords } from './keys';
 
 describe('diatonicChords', () => {
@@ -44,6 +45,35 @@ describe('resolveNumeral', () => {
 
   it('vii° in C = Bdim', () => {
     expect(resolveNumeral('vii°', 'C', 'major')).toBe('Bdim');
+  });
+
+  it('keeps half-diminished °7 distinct from a fully diminished 7th', () => {
+    expect(resolveNumeral('ii°7', 'A', 'minor')).toBe('Bm7b5');
+    expect(resolveNumeral('viidim7', 'C', 'major')).toBe('Bdim7');
+  });
+
+  it('preserves extended suffixes from the chord catalog', () => {
+    expect(resolveNumeral('IVmaj9', 'C', 'major')).toBe('Fmaj9');
+    expect(resolveNumeral('I7#9', 'E', 'major')).toBe('E7#9');
+    expect(resolveNumeral('Vsus4', 'C', 'major')).toBe('Gsus4');
+    expect(resolveNumeral('ii7b5', 'C', 'major')).toBe('Dm7b5');
+    expect(resolveNumeral('Iadd9', 'C', 'major')).toBe('Cadd9');
+    expect(resolveNumeral('V13', 'C', 'major')).toBe('G13');
+    expect(resolveNumeral('i5', 'A', 'minor')).toBe('A5');
+    expect(resolveNumeral('I5', 'E', 'major')).toBe('E5');
+
+    for (const quality of CHORD_QUALITIES) {
+      if (quality.suffix === '7') {
+        expect(resolveNumeral('I7', 'C', 'major')).toBe('C7');
+        expect(resolveNumeral('i7', 'C', 'major')).toBe('Cm7');
+        continue;
+      }
+      if (quality.suffix === 'm7b5') {
+        expect(resolveNumeral('iim7b5', 'C', 'major')).toBe('Dm7b5');
+        continue;
+      }
+      expect(resolveNumeral(`IV${quality.suffix}`, 'C', 'major')).toBe(`F${quality.suffix}`);
+    }
   });
 });
 

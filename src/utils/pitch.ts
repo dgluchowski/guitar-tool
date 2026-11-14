@@ -35,7 +35,9 @@ export interface PitchListener {
  * Rejects if mic permission is denied or the Web Audio API is unavailable.
  */
 export async function startPitchListener(options: PitchListenerOptions): Promise<PitchListener> {
-  const { onReading, bufferSize = 2048, minVolume = 0.004, gain = 1 } = options;
+  // 4096 samples covers about 3.5 periods of E1 (41.2 Hz) at 44.1/48 kHz, which the
+  // McLeod detector needs before it will report that low fundamental.
+  const { onReading, bufferSize = 4096, minVolume = 0.004, gain = 1 } = options;
 
   if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
     throw new Error('Microphone input is not supported in this browser.');

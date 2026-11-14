@@ -3,6 +3,7 @@ import ChordView from './ChordView';
 import ScaleView from './ScaleView';
 import ProgressionPlayer from './ProgressionPlayer';
 import { GENRES, getGenre, type Genre, type Lesson, type LessonContent } from '../data/genres';
+import type { KeyMode } from '../utils/keys';
 
 interface Props {
   tuning: string[];
@@ -10,9 +11,23 @@ interface Props {
   numFrets: number;
   /** Apply a tuning from a lesson/genre to the whole app. */
   onUseTuning: (strings: string[], name: string) => void;
+  /** Open a chord on the Explore fretboard. */
+  onOpenChord: (symbol: string) => void;
+  /** Open a scale on the Explore fretboard. */
+  onOpenScale: (root: string, scaleType: string) => void;
+  /** Load a Roman-numeral progression into the Progressions tab. */
+  onOpenProgression: (numerals: string[], keyTonic: string, keyMode: KeyMode) => void;
 }
 
-export function Genres({ tuning, leftHanded, numFrets, onUseTuning }: Props) {
+export function Genres({
+  tuning,
+  leftHanded,
+  numFrets,
+  onUseTuning,
+  onOpenChord,
+  onOpenScale,
+  onOpenProgression,
+}: Props) {
   const [genreId, setGenreId] = useState<string | null>(null);
   const [lessonId, setLessonId] = useState<string | null>(null);
 
@@ -41,12 +56,12 @@ export function Genres({ tuning, leftHanded, numFrets, onUseTuning }: Props) {
   }
 
   return (
-    <GenreDetail
+      <GenreDetail
       genre={genre}
-      tuning={tuning}
-      leftHanded={leftHanded}
-      numFrets={numFrets}
       onUseTuning={onUseTuning}
+      onOpenChord={onOpenChord}
+      onOpenScale={onOpenScale}
+      onOpenProgression={onOpenProgression}
       onOpenLesson={setLessonId}
       onBack={() => setGenreId(null)}
     />
@@ -89,15 +104,23 @@ function GenreList({ onSelect }: { onSelect: (id: string) => void }) {
 
 interface DetailProps {
   genre: Genre;
-  tuning: string[];
-  leftHanded: boolean;
-  numFrets: number;
   onUseTuning: (strings: string[], name: string) => void;
+  onOpenChord: (symbol: string) => void;
+  onOpenScale: (root: string, scaleType: string) => void;
+  onOpenProgression: (numerals: string[], keyTonic: string, keyMode: KeyMode) => void;
   onOpenLesson: (id: string) => void;
   onBack: () => void;
 }
 
-function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) {
+function GenreDetail({
+  genre,
+  onUseTuning,
+  onOpenChord,
+  onOpenScale,
+  onOpenProgression,
+  onOpenLesson,
+  onBack,
+}: DetailProps) {
   return (
     <div className="stack">
       <button type="button" onClick={onBack} className="link">
@@ -131,21 +154,27 @@ function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) 
           <ul className="list">
             {genre.scales.map((s, i) => (
               <li key={i}>
-                <span className="strong">{s.root}</span> <span className="capitalize">{s.scaleType}</span>
+                <button
+                  type="button"
+                  className="link"
+                  onClick={() => onOpenScale(s.root, s.scaleType)}
+                >
+                  <span className="strong">{s.root}</span> <span className="capitalize">{s.scaleType}</span>
+                </button>
               </li>
             ))}
           </ul>
         </Card>
 
         <Card title="Key voicings">
-          <ul className="chip-row">
+          <div className="chip-row">
             {genre.voicings.map((v, i) => (
-              <li key={i} className="pill">
+              <button key={i} type="button" className="chip" onClick={() => onOpenChord(v.chordSymbol)}>
                 <span className="faint small">{v.label}</span>
                 <span className="mono strong">{v.chordSymbol}</span>
-              </li>
+              </button>
             ))}
-          </ul>
+          </div>
         </Card>
 
         <Card title="Sources">
@@ -161,16 +190,19 @@ function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) 
         </Card>
 
         <Card title="Progressions">
-          <ul className="list">
+          <div className="stack-sm">
             {genre.progressions.map((p, i) => (
-              <li key={i}>
+              <button
+                key={i}
+                type="button"
+                className="lesson-row"
+                onClick={() => onOpenProgression(p.numerals, p.keyTonic, p.keyMode)}
+              >
                 <span className="strong">{p.name}</span>
-                <span className="mono faint small" style={{ marginLeft: '0.5rem' }}>
-                  {p.numerals.join(' – ')}
-                </span>
-              </li>
+                <span className="mono faint small">{p.numerals.join(' – ')}</span>
+              </button>
             ))}
-          </ul>
+          </div>
         </Card>
       </div>
 
@@ -261,9 +293,12 @@ function LessonContentView({
       );
     case 'progression':
       return (
-        <div className="panel">
-          <ProgressionPlayer numerals={content.numerals} keyTonic={content.keyTonic} keyMode={content.keyMode} />
-        </div>
+        <ProgressionLesson
+          content={content}
+          tuning={tuning}
+          leftHanded={leftHanded}
+          numFrets={numFrets}
+        />
       );
     case 'tuning': {
       const active = tuning.join(',') === content.strings.join(',');
@@ -286,6 +321,35 @@ function LessonContentView({
       );
     }
   }
+}
+
+function ProgressionLesson({
+  content,
+  tuning,
+  leftHanded,
+  numFrets,
+}: {
+  content: Extract<LessonContent, { kind: 'progression' }>;
+  tuning: string[];
+  leftHanded: boolean;
+  numFrets: number;
+}) {
+  const [selectedChord, setSelectedChord] = useState<string | null>(null);
+  return (
+    <div className="stack">
+      <div className="panel">
+        <ProgressionPlayer
+          numerals={content.numerals}
+          keyTonic={content.keyTonic}
+          keyMode={content.keyMode}
+          onSelectChord={setSelectedChord}
+        />
+      </div>
+      {selectedChord && (
+        <ChordView chordSymbol={selectedChord} tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />
+      )}
+    </div>
+  );
 }
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {

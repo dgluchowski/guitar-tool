@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GENRES } from './genres';
-import { SCALE_TYPES } from '../utils/catalog';
-import { notesForChord, notesForScale } from '../utils/engine';
+import { CHORD_QUALITIES, SCALE_TYPES, splitChordSymbol } from '../utils/catalog';
+import { findChordShapes, notesForChord, notesForScale } from '../utils/engine';
 import { resolveNumeral } from '../utils/keys';
 import { findTuningPreset, midiOf } from '../utils/notes';
 
@@ -60,6 +60,24 @@ describe('genre content', () => {
           for (const open of content.strings) expect(midiOf(open), lesson.id).not.toBeNull();
         }
       }
+    }
+  });
+
+  it('maps every genre chord onto a catalog quality with a playable shape', () => {
+    const suffixes = new Set(CHORD_QUALITIES.map((q) => q.suffix));
+    const standard = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+    const symbols = new Set<string>();
+    for (const genre of GENRES) {
+      for (const voicing of genre.voicings) symbols.add(voicing.chordSymbol);
+      for (const lesson of genre.lessons) {
+        if (lesson.content.kind === 'chord') symbols.add(lesson.content.chordSymbol);
+      }
+    }
+    expect(symbols.size).toBeGreaterThan(0);
+    for (const symbol of symbols) {
+      const { quality } = splitChordSymbol(symbol);
+      expect(suffixes.has(quality), `${symbol} quality ${quality}`).toBe(true);
+      expect(findChordShapes(symbol, standard).length, symbol).toBeGreaterThan(0);
     }
   });
 

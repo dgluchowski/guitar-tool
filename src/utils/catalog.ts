@@ -36,6 +36,14 @@ export const CHORD_QUALITIES: ChordQuality[] = [
   { label: '6', suffix: '6', beginner: false },
   { label: 'Minor 6', suffix: 'm6', beginner: false },
   { label: '9', suffix: '9', beginner: false },
+  { label: 'Minor 9', suffix: 'm9', beginner: false },
+  { label: 'Major 9', suffix: 'maj9', beginner: false },
+  { label: '11', suffix: '11', beginner: false },
+  { label: '13', suffix: '13', beginner: false },
+  { label: '7♯9', suffix: '7#9', beginner: false },
+  { label: '7♭9', suffix: '7b9', beginner: false },
+  { label: '7sus4', suffix: '7sus4', beginner: false },
+  { label: 'Diminished 7', suffix: 'dim7', beginner: false },
 ];
 
 export const SCALE_TYPES = [
