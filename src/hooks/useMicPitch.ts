@@ -39,7 +39,8 @@ interface Options {
  * and exposes the latest detected note. Always cleans up the mic on unmount.
  */
 export function useMicPitch(options: Options = {}): MicPitchState {
-  const { minClarity = 0.9, minFreq = 60, maxFreq = 1200, holdMs = 0, gain = 1 } = options;
+  // 35 Hz sits under a slightly flat 8-string low E (E1 = 41.2 Hz, F#1 = 46.3 Hz, A1 = 55 Hz).
+  const { minClarity = 0.9, minFreq = 35, maxFreq = 1200, holdMs = 0, gain = 1 } = options;
   const [status, setStatus] = useState<MicStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<DetectedNote | null>(null);

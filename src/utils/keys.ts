@@ -54,25 +54,57 @@ export function parseRomanNumeral(token: string): ParsedNumeral | null {
   if (!degree) return null;
   const rest = s.slice(roman.length);
   const isUpper = roman[0] === roman[0].toUpperCase();
+  return { degree, accidental, suffix: qualitySuffix(rest, isUpper) };
+}
 
-  // Determine quality suffix from explicit markers, else from case.
-  let suffix: string;
+/**
+ * Quality written after a Roman numeral. Longer suffixes are listed first.
+ * `7b5` and `°7` are the half-diminished numeral spellings of `m7b5`.
+ * A bare `7` follows the numeral's case (I7 dominant, i7 minor).
+ */
+const NUMERAL_SUFFIXES: { pattern: string; suffix: string }[] = [
+  { pattern: 'maj9', suffix: 'maj9' },
+  { pattern: 'maj7', suffix: 'maj7' },
+  { pattern: 'm7b5', suffix: 'm7b5' },
+  { pattern: '7sus4', suffix: '7sus4' },
+  { pattern: '7#9', suffix: '7#9' },
+  { pattern: '7b9', suffix: '7b9' },
+  { pattern: '7b5', suffix: 'm7b5' },
+  { pattern: 'dim7', suffix: 'dim7' },
+  { pattern: 'add9', suffix: 'add9' },
+  { pattern: 'sus4', suffix: 'sus4' },
+  { pattern: 'sus2', suffix: 'sus2' },
+  { pattern: 'm9', suffix: 'm9' },
+  { pattern: 'm7', suffix: 'm7' },
+  { pattern: 'm6', suffix: 'm6' },
+  { pattern: '13', suffix: '13' },
+  { pattern: '11', suffix: '11' },
+  { pattern: '9', suffix: '9' },
+  { pattern: '6', suffix: '6' },
+  { pattern: '5', suffix: '5' },
+];
+
+function qualitySuffix(rest: string, isUpper: boolean): string {
+  if (rest === 'M9') return 'maj9';
+  if (rest === 'M7') return 'maj7';
+  if (!rest) return isUpper ? '' : 'm';
+
   const rl = rest.toLowerCase();
-  if (rl.includes('°') || rl.startsWith('o') || rl.startsWith('dim')) {
-    suffix = rl.includes('7') ? 'm7b5' : 'dim';
-  } else if (rest.includes('+') || rl.startsWith('aug')) {
-    suffix = 'aug';
-  } else if (rl === 'maj7' || rl === 'M7') {
-    suffix = 'maj7';
-  } else if (rl === '7') {
-    suffix = isUpper ? '7' : 'm7';
-  } else if (rl === 'm' || rl === 'm7') {
-    suffix = rl;
-  } else {
-    suffix = isUpper ? '' : 'm';
+  // °7 / o7 / ø are half-diminished. A plain ° or o is a diminished triad.
+  // dim7 is the fully diminished seventh, so it is matched on its own below.
+  if (rl.includes('ø') || rl.includes('°') || rl === 'o' || rl === 'o7') {
+    return rl.includes('7') || rl.includes('ø') ? 'm7b5' : 'dim';
   }
+  if (rl === 'dim7') return 'dim7';
+  if (rl === 'dim' || rl.startsWith('dim')) return 'dim';
+  if (rest.includes('+') || rl.startsWith('aug')) return 'aug';
 
-  return { degree, accidental, suffix };
+  for (const rule of NUMERAL_SUFFIXES) {
+    if (rl === rule.pattern) return rule.suffix;
+  }
+  if (rl === '7') return isUpper ? '7' : 'm7';
+  if (rl === 'm') return 'm';
+  return isUpper ? '' : 'm';
 }
 
 /** Resolve a single Roman numeral to a chord symbol within a key. */

@@ -5,6 +5,8 @@ import EarTraining from './EarTraining';
 
 interface Props {
   tuning: string[];
+  leftHanded: boolean;
+  numFrets: number;
 }
 
 type Tool = 'tuner' | 'trainer' | 'ear';
@@ -15,7 +17,7 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: 'ear', label: 'Ear Training' },
 ];
 
-export function Practice({ tuning }: Props) {
+export function Practice({ tuning, leftHanded, numFrets }: Props) {
   const [tool, setTool] = useState<Tool>('tuner');
 
   return (
@@ -29,7 +31,7 @@ export function Practice({ tuning }: Props) {
       </div>
 
       {tool === 'tuner' && <Tuner tuning={tuning} />}
-      {tool === 'trainer' && <NoteTrainer tuning={tuning} />}
+      {tool === 'trainer' && <NoteTrainer tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />}
       {tool === 'ear' && <EarTraining />}
     </div>
   );

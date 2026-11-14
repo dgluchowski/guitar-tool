@@ -59,8 +59,18 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
     onChange(next);
   };
 
-  const addString = () => onChange([...tuning, 'B1']);
-  const removeString = () => tuning.length > 2 && onChange(tuning.slice(0, -1));
+  // A perfect fourth (5 semitones) keeps the new string in the same pitch neighborhood.
+  const fourthFrom = (note: string, direction: -1 | 1): string => {
+    const midi = Note.midi(note);
+    if (midi == null) return note;
+    return Note.fromMidi(Math.min(127, Math.max(0, midi + direction * 5)));
+  };
+  const addLowString = () => onChange([fourthFrom(tuning[0], -1), ...tuning]);
+  const addHighString = () => onChange([...tuning, fourthFrom(tuning[tuning.length - 1], 1)]);
+  const removeAt = (index: number) => {
+    if (tuning.length <= 2) return;
+    onChange(tuning.filter((_, i) => i !== index));
+  };
 
   const tuningText = tuningToText(tuning);
 
@@ -222,17 +232,41 @@ export function TuningSelector({ tuning, onChange, custom, onCustomChange }: Pro
                   className="control octave"
                   aria-label={`String ${i + 1} octave`}
                 />
+                {tuning.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => removeAt(i)}
+                    className="btn btn-sm"
+                    aria-label={`Remove string ${i + 1}`}
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
           </div>
           <div className="toolbar">
-            <button type="button" onClick={addString} className="btn btn-sm">
-              + String
+            <button type="button" onClick={addLowString} className="btn btn-sm">
+              + Low string
             </button>
-            <button type="button" onClick={removeString} disabled={tuning.length <= 2} className="btn btn-sm">
-              − String
+            <button type="button" onClick={addHighString} className="btn btn-sm">
+              + High string
+            </button>
+            <button type="button" onClick={() => removeAt(0)} disabled={tuning.length <= 2} className="btn btn-sm">
+              − Low string
+            </button>
+            <button
+              type="button"
+              onClick={() => removeAt(tuning.length - 1)}
+              disabled={tuning.length <= 2}
+              className="btn btn-sm"
+            >
+              − High string
             </button>
           </div>
+          <p className="hint hint-flush">
+            Low adds a fourth under the lowest string. High adds a fourth over the highest.
+          </p>
         </div>
       )}
     </div>

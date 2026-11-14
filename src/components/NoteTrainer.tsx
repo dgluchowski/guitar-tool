@@ -6,6 +6,8 @@ import { samePitchClass } from '../utils/notes';
 interface Props {
   /** Current tuning's open-string notes, used for the optional fretboard hint. */
   tuning: string[];
+  leftHanded: boolean;
+  numFrets: number;
 }
 
 const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -27,7 +29,7 @@ function pickNext(pool: string[], current: string | null): string {
   return choices[Math.floor(Math.random() * choices.length)] ?? pool[0];
 }
 
-export function NoteTrainer({ tuning }: Props) {
+export function NoteTrainer({ tuning, leftHanded, numFrets }: Props) {
   const [naturalsOnly, setNaturalsOnly] = useState(true);
   const [showHint, setShowHint] = useState(false);
   const [target, setTarget] = useState<string | null>(null);
@@ -190,8 +192,9 @@ export function NoteTrainer({ tuning }: Props) {
           </div>
           <Fretboard
             tuning={tuning}
-            numFrets={12}
-            fretRange={[0, 12]}
+            numFrets={numFrets}
+            fretRange={[0, numFrets]}
+            leftHanded={leftHanded}
             showAllNotes={false}
             highlightedNotes={{ [target]: { color: '#F0E442', label: target } } as HighlightMap}
           />

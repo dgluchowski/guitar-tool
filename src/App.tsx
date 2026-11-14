@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import TuningSelector from './components/TuningSelector';
-import { splitChordSymbol } from './utils/catalog';
+import { canonicalRoot, splitChordSymbol } from './utils/catalog';
 
 // Lazy-load tab views so each is a separate chunk and the initial load stays small.
 const Explore = lazy(() => import('./components/Explore'));
@@ -172,10 +172,27 @@ export default function App() {
             leftHanded={state.leftHanded}
             numFrets={MAX_FRETS}
             onUseTuning={(strings) => update({ tuning: strings, custom: false })}
+            onOpenChord={(symbol) => {
+              const { root, quality } = splitChordSymbol(symbol);
+              update({ view: 'explore', mode: 'chord', root, quality });
+            }}
+            onOpenScale={(root, scaleType) => {
+              update({ view: 'explore', mode: 'scale', root: canonicalRoot(root) ?? 'C', scaleType });
+            }}
+            onOpenProgression={(numerals, keyTonic, keyMode) => {
+              update({
+                view: 'progressions',
+                progression: numerals,
+                keyTonic: canonicalRoot(keyTonic) ?? 'C',
+                keyMode,
+              });
+            }}
           />
         )}
 
-        {state.view === 'practice' && <Practice tuning={state.tuning} />}
+        {state.view === 'practice' && (
+          <Practice tuning={state.tuning} leftHanded={state.leftHanded} numFrets={MAX_FRETS} />
+        )}
 
         {state.view === 'progressions' && (
           <Progressions
