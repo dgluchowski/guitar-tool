@@ -17,10 +17,12 @@ export async function ensureAudio(): Promise<void> {
     started = true;
   }
   if (!synth) {
+    // A short attack, a decaying sustain, and a falling harmonic series: a
+    // plucked string rather than a buzzing organ.
     synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: { attack: 0.005, decay: 0.2, sustain: 0.3, release: 0.8 },
-      volume: -8,
+      oscillator: { type: 'custom', partials: [1, 0.55, 0.3, 0.16, 0.08, 0.04] },
+      envelope: { attack: 0.004, decay: 0.45, sustain: 0.12, release: 1.15 },
+      volume: -10,
     }).toDestination();
   }
   if (!click) {
@@ -51,13 +53,35 @@ export function stopAll(): void {
   synth?.releaseAll();
 }
 
-/** Play a block chord. `notes` are note names with octave, e.g. ["C3","E3","G3"]. Layers on top of anything already ringing — call stopAll first if you don't want that. */
+/** Rough MIDI number so a strum can be ordered low to high without pulling in tonal. */
+function midiOfName(note: string): number {
+  const match = note.match(/^([A-G])([#b]?)(-?\d+)$/);
+  if (!match) return 0;
+  const pitch = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[match[1]] ?? 0;
+  const accidental = match[2] === '#' ? 1 : match[2] === 'b' ? -1 : 0;
+  return (Number(match[3]) + 1) * 12 + pitch + accidental;
+}
+
+/** Delay between strings in a downstroke, inside the 22–30ms guitar range. */
+const STRUM_MS = 26;
+
+function strumNotes(notes: string[], duration: string | number, epoch: number): void {
+  const ordered = [...notes].sort((a, b) => midiOfName(a) - midiOfName(b));
+  ordered.forEach((note, i) => {
+    later(i * STRUM_MS, () => {
+      if (epoch !== playbackEpoch) return;
+      synth!.triggerAttackRelease(note, duration, Tone!.now() + 0.01);
+    });
+  });
+}
+
+/** Play a chord as a low-to-high strum. Layers on top of anything already ringing — call stopAll first if you don't want that. */
 export async function playChord(notes: string[], duration = '1n'): Promise<void> {
   if (!notes.length) return;
   const epoch = playbackEpoch;
   await ensureAudio();
   if (epoch !== playbackEpoch) return;
-  synth!.triggerAttackRelease(notes, duration, Tone!.now() + 0.02);
+  strumNotes(notes, duration, epoch);
 }
 
 /** Play notes one after another (scale / arpeggio). Cancels any current playback first. */
@@ -110,7 +134,7 @@ export async function playProgression(
     later(i * chordMs, () => {
       if (!current()) return;
       if (step.notes.length) {
-        synth!.triggerAttackRelease(step.notes, beatsPerChord * secPerBeat * 0.95, Tone!.now() + 0.01);
+        strumNotes(step.notes, beatsPerChord * secPerBeat * 0.95, epoch);
       }
       onStep?.(i);
     });

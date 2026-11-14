@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import ChordView from './ChordView';
 import ScaleView from './ScaleView';
+import IdentifyView from './IdentifyView';
 import { CHORD_QUALITIES, ROOTS, SCALE_TYPES } from '../utils/catalog';
 import { stopAll } from '../utils/audio';
 import type { SelectionMode } from '../utils/appState';
@@ -26,13 +27,14 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
     <div className="stack">
       <div className="panel control-row">
         <div className="seg">
-          {(['chord', 'scale'] as const).map((m) => (
+          {(['chord', 'scale', 'identify'] as const).map((m) => (
             <button key={m} type="button" onClick={() => onChange({ mode: m })} aria-pressed={mode === m}>
               {m}
             </button>
           ))}
         </div>
 
+        {mode !== 'identify' && (
         <label className="field">
           Root
           <select value={root} onChange={(e) => onChange({ root: e.target.value })} className="control">
@@ -43,6 +45,7 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
             ))}
           </select>
         </label>
+        )}
 
         {mode === 'chord' ? (
           <label className="field">
@@ -55,7 +58,7 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
               ))}
             </select>
           </label>
-        ) : (
+        ) : mode === 'scale' ? (
           <label className="field">
             Scale
             <select
@@ -70,13 +73,20 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
               ))}
             </select>
           </label>
-        )}
+        ) : null}
       </div>
 
       {mode === 'chord' ? (
         <ChordView chordSymbol={`${root}${quality}`} tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />
-      ) : (
+      ) : mode === 'scale' ? (
         <ScaleView root={root} scaleType={scaleType} tuning={tuning} leftHanded={leftHanded} numFrets={numFrets} />
+      ) : (
+        <IdentifyView
+          tuning={tuning}
+          leftHanded={leftHanded}
+          numFrets={numFrets}
+          onOpenChord={(nextRoot, nextQuality) => onChange({ mode: 'chord', root: nextRoot, quality: nextQuality })}
+        />
       )}
     </div>
   );

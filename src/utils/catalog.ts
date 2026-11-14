@@ -1,5 +1,7 @@
 import { Note } from 'tonal';
 
+export { prefersFlatKey, spellPitchClass, tuningUsesFlats } from './notes';
+
 export const ROOTS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 /**

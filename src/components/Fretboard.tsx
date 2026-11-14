@@ -1,6 +1,6 @@
 import { useId, useMemo } from 'react';
 import { Note } from 'tonal';
-import { pitchClassAtFret, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../utils/notes';
+import { noteAtFret, pitchClassAtFret, spellPitchClass, SINGLE_DOT_FRETS, DOUBLE_DOT_FRETS } from '../utils/notes';
 import { contrastText } from '../utils/colors';
 
 export type Highlight = {
@@ -38,6 +38,10 @@ export interface FretboardProps {
   positions?: CellMarker[];
   /** Strings to mark as muted with an "✕" at the nut. */
   mutedStrings?: number[];
+  /** Spell note names with flats (Bb, Eb) instead of sharps. */
+  spellFlats?: boolean;
+  /** Called when a note marker is clicked. `note` includes the octave. */
+  onCellClick?: (stringIndex: number, fret: number, note: string) => void;
 }
 
 const CELL_W = 52;
@@ -68,6 +72,8 @@ export function Fretboard({
   showAllNotes = true,
   positions,
   mutedStrings,
+  spellFlats = false,
+  onCellClick,
 }: FretboardProps) {
   const uid = useId().replace(/:/g, '');
   const numStrings = tuning.length;
@@ -147,7 +153,7 @@ export function Fretboard({
     <div className="fretboard-scroll">
       <svg
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
-        role="img"
+        role={onCellClick ? 'group' : 'img'}
         aria-label={description}
         fontFamily="var(--font-sans)"
         style={{ width: '100%', minWidth: `${readableMin}px`, height: 'auto' }}
@@ -300,7 +306,7 @@ export function Fretboard({
         {/* String labels in the left gutter. A muted string shows ✕ instead of its open note. */}
         {tuning.map((open, i) => {
           const isMuted = muted.has(i);
-          const label = isMuted ? '✕' : Note.pitchClass(open);
+          const label = isMuted ? '✕' : spellPitchClass(open, spellFlats);
           const cx = fx(PAD_L / 2);
           const cy = stringY(i);
           return (
@@ -324,8 +330,11 @@ export function Fretboard({
         {/* Note markers */}
         {tuning.map((open, i) =>
           columns.map((col) => {
-            const pc = pitchClassAtFret(open, col.fret);
+            const pc = spellPitchClass(pitchClassAtFret(open, col.fret), spellFlats);
             const c = Note.chroma(pc);
+            const click = onCellClick
+              ? () => onCellClick(i, col.fret, noteAtFret(open, col.fret))
+              : undefined;
             const hl = c != null ? highlights.get(c) : undefined;
             const cx = fx(col.cx);
             const cy = stringY(i);
@@ -333,7 +342,12 @@ export function Fretboard({
             if (hl) {
               const label = hl.label ?? pc;
               return (
-                <g key={`m-${i}-${col.fret}`} filter={`url(#${uid}-shadow)`}>
+                <g
+                  key={`m-${i}-${col.fret}`}
+                  filter={`url(#${uid}-shadow)`}
+                  onClick={click}
+                  style={click ? { cursor: 'pointer' } : undefined}
+                >
                   <circle cx={cx} cy={cy} r={MARKER_R} fill={hl.color} />
                   <circle cx={cx} cy={cy} r={MARKER_R - 1.2} fill="none" stroke="var(--marker-ring)" strokeWidth="1.6" />
                   <text
@@ -354,7 +368,7 @@ export function Fretboard({
             if (!showAllNotes) return null;
 
             return (
-              <g key={`m-${i}-${col.fret}`}>
+              <g key={`m-${i}-${col.fret}`} onClick={click} style={click ? { cursor: 'pointer' } : undefined}>
                 <circle cx={cx} cy={cy} r={MARKER_R - 2} fill="var(--ghost-fill)" stroke="var(--ghost-stroke)" strokeWidth="1" />
                 <text
                   x={cx}
@@ -378,8 +392,17 @@ export function Fretboard({
           if (!col) return null;
           const cx = fx(col.cx);
           const cy = stringY(m.string);
+          const open = tuning[m.string];
+          const click = onCellClick && open
+            ? () => onCellClick(m.string, m.fret, noteAtFret(open, m.fret))
+            : undefined;
           return (
-            <g key={`pos-${m.string}-${m.fret}`} filter={`url(#${uid}-shadow)`}>
+            <g
+              key={`pos-${m.string}-${m.fret}`}
+              filter={`url(#${uid}-shadow)`}
+              onClick={click}
+              style={click ? { cursor: 'pointer' } : undefined}
+            >
               <circle cx={cx} cy={cy} r={MARKER_R} fill={m.color} />
               <circle cx={cx} cy={cy} r={MARKER_R - 1.2} fill="none" stroke="var(--marker-ring)" strokeWidth="1.6" />
               {m.label && (

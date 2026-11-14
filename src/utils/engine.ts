@@ -799,3 +799,62 @@ export function findChordShapes(
   if (tuning.length <= 6) return searchPlayable(tuning, tones, ctx, limit);
   return searchExtended(tuning, tones, ctx, limit);
 }
+
+export type NeckZoneChoice = 'open' | 'mid' | 'high' | 'smooth';
+
+const PROGRESSION_ZONES: Record<Exclude<NeckZoneChoice, 'smooth'>, [number, number]> = {
+  open: [0, 4],
+  mid: [4, 8],
+  high: [8, 12],
+};
+
+function progressionPool(
+  symbol: string,
+  tuning: string[],
+  maxFrets: number,
+  choice: NeckZoneChoice,
+): ChordShape[] {
+  if (choice === 'smooth') {
+    return findChordShapesByPosition(symbol, tuning, { maxFrets }).flatMap((bucket) => bucket.shapes.slice(0, 2));
+  }
+  const [lo, hi] = PROGRESSION_ZONES[choice];
+  if (lo > maxFrets) return [];
+  return findChordShapes(symbol, tuning, {
+    maxFrets,
+    positionRange: [lo, Math.min(hi, maxFrets)],
+    limit: 8,
+  });
+}
+
+/**
+ * One playable shape per chord. A fixed zone stays in that fret window.
+ * Smooth voice leading picks, at each step, the shape whose base fret is
+ * closest to the previous chord.
+ */
+export function selectProgressionVoicings(
+  symbols: string[],
+  tuning: string[],
+  maxFrets: number,
+  choice: NeckZoneChoice,
+): (ChordShape | null)[] {
+  let previous: ChordShape | null = null;
+  return symbols.map((symbol) => {
+    const pool = progressionPool(symbol, tuning, maxFrets, choice);
+    if (!pool.length) {
+      previous = null;
+      return null;
+    }
+    let best = pool[0];
+    if (choice === 'smooth' && previous) {
+      const anchor = previous.baseFret;
+      best = pool.reduce((current, candidate) => {
+        const currentDelta = Math.abs(current.baseFret - anchor);
+        const candidateDelta = Math.abs(candidate.baseFret - anchor);
+        if (candidateDelta !== currentDelta) return candidateDelta < currentDelta ? candidate : current;
+        return candidate.score < current.score ? candidate : current;
+      });
+    }
+    previous = best;
+    return best;
+  });
+}

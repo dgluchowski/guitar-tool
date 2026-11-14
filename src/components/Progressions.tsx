@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import ChordView from './ChordView';
 import { ROOTS } from '../utils/catalog';
 import { resolveProgression, type KeyMode } from '../utils/keys';
-import { notesForChord, voicePitchClasses } from '../utils/engine';
+import { notesForChord, selectProgressionVoicings, voicePitchClasses, type NeckZoneChoice } from '../utils/engine';
+import { noteAtFret } from '../utils/notes';
 import { playProgression, stopAll } from '../utils/audio';
 
 interface Props {
@@ -42,6 +43,7 @@ export function Progressions({
   const [bpm, setBpm] = useState(90);
   const [playingIndex, setPlayingIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [neck, setNeck] = useState<NeckZoneChoice>('open');
 
   const chords = useMemo(
     () => resolveProgression(progression, keyTonic, keyMode),
@@ -60,7 +62,16 @@ export function Progressions({
   useEffect(() => () => stopAll(), []);
 
   const play = async () => {
-    const steps = chords.map((c) => {
+    const shapes = selectProgressionVoicings(chords, tuning, numFrets, neck);
+    const steps = chords.map((c, i) => {
+      const shape = shapes[i];
+      if (shape) {
+        const notes = shape.positions
+          .slice()
+          .sort((a, b) => a.string - b.string)
+          .map((p) => noteAtFret(tuning[p.string], p.fret));
+        return { notes };
+      }
       const set = notesForChord(c);
       return { notes: set.pitches.length ? voicePitchClasses(set.pitches.map((p) => p.pc)) : [] };
     });
@@ -127,6 +138,21 @@ export function Progressions({
                 {p.label}
               </option>
             ))}
+          </select>
+        </label>
+
+        <label className="field-inline">
+          Neck
+          <select
+            value={neck}
+            onChange={(e) => setNeck(e.target.value as NeckZoneChoice)}
+            className="control"
+            aria-label="Neck zone"
+          >
+            <option value="open">Open / Low</option>
+            <option value="mid">Mid Neck (4–8)</option>
+            <option value="high">High Neck (8–12)</option>
+            <option value="smooth">Smooth Voice Leading</option>
           </select>
         </label>
 

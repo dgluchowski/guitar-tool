@@ -168,3 +168,40 @@ export function noteToFrequency(note: string): number | null {
 export function midiOf(note: string): number | null {
   return Note.midi(note);
 }
+
+const SHARP_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+/** F, Bb, Eb, Ab, Db — and the sharp names of those same keys (A#, D#, G#, C#). */
+const FLAT_KEY_CHROMAS = new Set([5, 10, 3, 8, 1]);
+
+/** True when this root is one of the flat keys (F, Bb/A#, Eb/D#, Ab/G#, Db/C#). */
+export function prefersFlatKey(root: string): boolean {
+  const c = Note.chroma(root);
+  return c != null && FLAT_KEY_CHROMAS.has(c);
+}
+
+/** True when any open string is already spelled with a flat. */
+export function tuningUsesFlats(tuning: string[]): boolean {
+  return tuning.some((n) => Note.pitchClass(n).includes('b'));
+}
+
+/** Pitch class spelled with sharps, or with flats when `flats` is set. */
+export function spellPitchClass(note: string, flats: boolean): string {
+  const c = Note.chroma(note);
+  if (c == null) return note;
+  return (flats ? FLAT_NAMES : SHARP_NAMES)[c];
+}
+
+/** Note-with-octave spelled the same way as `spellPitchClass`. */
+export function spellNoteName(note: string, flats: boolean): string {
+  const oct = Note.octave(note);
+  const pc = spellPitchClass(note, flats);
+  return oct == null ? pc : `${pc}${oct}`;
+}
+
+/** Respell the root of a chord symbol, leaving the quality suffix alone. */
+export function spellChordSymbol(symbol: string, flats: boolean): string {
+  const match = symbol.match(/^([A-G][#b]?)(.*)$/);
+  if (!match) return symbol;
+  return spellPitchClass(match[1], flats) + match[2];
+}
