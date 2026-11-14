@@ -28,9 +28,16 @@ export default defineConfig({
           { src: 'app-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
       },
-      workbox: {
-        // Cache the built app shell + assets for full offline use.
+      // Custom worker: navigations are network-first (see src/sw.ts). The
+      // generateSW default precaches index.html and serves it cache-first,
+      // so the previous release painted until a later reload.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Classic script. The injected registerSW.js does not set type: 'module'.
+        rollupFormat: 'iife',
       },
     }),
   ],
