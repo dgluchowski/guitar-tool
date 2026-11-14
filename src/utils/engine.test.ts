@@ -1,6 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { Note } from 'tonal';
-import { notesForChord, notesForScale, mapNotesToFretboard, findChordShapes } from './engine';
+import {
+  notesForChord,
+  notesForScale,
+  mapNotesToFretboard,
+  findChordShapes,
+  findChordShapesByPosition,
+  neckZones,
+  type ChordShape,
+} from './engine';
 
 const STANDARD = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
 const DADGAD = ['D2', 'A2', 'D3', 'G3', 'A3', 'D4'];
@@ -145,5 +153,122 @@ describe('findChordShapes (7 and 8 strings)', () => {
     const shapes = findChordShapes('C', tuning, { maxFrets: 15 });
     expect(performance.now() - start).toBeLessThan(500);
     expect(shapes.length).toBeGreaterThan(0);
+  });
+});
+
+const degrees = (shape: ChordShape) => new Set(shape.positions.map((p) => p.degree));
+
+describe('extended chord omissions', () => {
+  it('voices G13 with guide tones, and the 4-string grip omits 5 and 9', () => {
+    const shapes = findChordShapes('G13', STANDARD, { maxFrets: 15, limit: 12 });
+    expect(shapes.length).toBeGreaterThan(0);
+    for (const shape of shapes) {
+      const d = degrees(shape);
+      expect(d.has('1')).toBe(true);
+      expect(d.has('3')).toBe(true);
+      expect(d.has('b7')).toBe(true);
+      expect(d.has('13')).toBe(true);
+      expect(shape.fingers).toBeLessThanOrEqual(4);
+    }
+
+    // A 4-string grip has room for exactly the guide tones 1–3–b7–13.
+    const fours = findChordShapes('G13', STANDARD, { voicingStyle: 'drop2', maxFrets: 15, limit: 8 });
+    expect(fours.length).toBeGreaterThan(0);
+    for (const shape of fours) {
+      const d = degrees(shape);
+      expect([...d].sort()).toEqual(['1', '13', '3', 'b7']);
+      expect(shape.positions).toHaveLength(4);
+    }
+  });
+
+  it('keeps the altered 9th in E7#9 and the 9th in Fmaj9 and E9', () => {
+    for (const symbol of ['E7#9', 'Fmaj9', 'E9'] as const) {
+      const shapes = findChordShapes(symbol, STANDARD, { maxFrets: 15, limit: 20 });
+      expect(shapes.length, symbol).toBeGreaterThan(0);
+      const required = symbol === 'E7#9' ? '#9' : '9';
+      for (const shape of shapes) expect(degrees(shape).has(required), symbol).toBe(true);
+    }
+  });
+});
+
+describe('findChordShapesByPosition', () => {
+  it('adds upper zones only when the neck is long enough', () => {
+    expect(neckZones(15).map((z) => z.id)).toEqual(['open', 'iii', 'v', 'vii', 'ix', 'xii']);
+    expect(neckZones(17).map((z) => z.id)).toContain('upper14');
+    expect(neckZones(17).map((z) => z.id)).not.toContain('upper18');
+    expect(neckZones(24).map((z) => z.id)).toContain('upper18');
+  });
+
+  it.each([
+    ['6-string', STANDARD],
+    ['7-string', STANDARD_7],
+    ['8-string', STANDARD_8],
+  ])('finds %s voicings in the low, mid, and high zones', (_label, tuning) => {
+    const start = performance.now();
+    const buckets = findChordShapesByPosition('C', tuning, { maxFrets: 15 });
+    expect(performance.now() - start).toBeLessThan(500);
+    for (const id of ['open', 'v', 'ix', 'xii']) {
+      const bucket = buckets.find((b) => b.zone.id === id);
+      expect(bucket?.shapes.length, id).toBeGreaterThan(0);
+      for (const shape of bucket!.shapes) {
+        expect(shape.positionLabel).toBe(bucket!.zone.label);
+        expect(shape.fingerMap).toHaveLength(tuning.length);
+        expect(shape.stringSpan[0]).toBeGreaterThanOrEqual(1);
+        expect(shape.stringSpan[1]).toBeLessThanOrEqual(tuning.length);
+        for (const pos of shape.positions) {
+          if (pos.fret === 0) expect(bucket!.zone.range[0]).toBe(0);
+          else {
+            expect(pos.fret).toBeGreaterThanOrEqual(bucket!.zone.range[0]);
+            expect(pos.fret).toBeLessThanOrEqual(bucket!.zone.range[1]);
+          }
+        }
+      }
+    }
+  });
+
+  it('labels the open C shape and its fingering', () => {
+    const open = findChordShapesByPosition('C', STANDARD, { maxFrets: 15 })
+      .flatMap((b) => b.shapes)
+      .find((s) => fretStr(s.frets) === 'x32010');
+    expect(open).toBeDefined();
+    expect(open!.inversion).toBe('Root');
+    expect(open!.stringSpan).toEqual([2, 6]);
+    // Fret 1 is the index; fret 2 then fret 3 take the next fingers. Opens and the mute stay empty.
+    expect(open!.fingerMap).toEqual([null, 3, 2, null, 1, null]);
+  });
+});
+
+describe('voicing style and string register', () => {
+  it('limits triads to three contiguous strings and shells to 1–3–7', () => {
+    const triads = findChordShapes('Cmaj7', STANDARD, { voicingStyle: 'triad', maxFrets: 12, limit: 12 });
+    expect(triads.length).toBeGreaterThan(0);
+    for (const shape of triads) {
+      expect(shape.positions).toHaveLength(3);
+      const d = degrees(shape);
+      expect(d.has('1') && d.has('3') && d.has('5')).toBe(true);
+      const strings = shape.positions.map((p) => p.string);
+      expect(Math.max(...strings) - Math.min(...strings)).toBe(2);
+    }
+
+    const shells = findChordShapes('Cmaj7', STANDARD, { voicingStyle: 'shell', maxFrets: 12, limit: 12 });
+    expect(shells.length).toBeGreaterThan(0);
+    for (const shape of shells) {
+      expect(shape.positions.length).toBeGreaterThanOrEqual(3);
+      expect(shape.positions.length).toBeLessThanOrEqual(4);
+      const d = degrees(shape);
+      expect(d.has('1') && d.has('3') && d.has('7')).toBe(true);
+    }
+
+    const fours = findChordShapes('G7', STANDARD, { voicingStyle: 'drop2', maxFrets: 12, limit: 8 });
+    expect(fours.length).toBeGreaterThan(0);
+    for (const shape of fours) expect(shape.positions).toHaveLength(4);
+  });
+
+  it('keeps a low-string filter on the bottom of an 8-string tuning', () => {
+    const shapes = findChordShapes('E5', STANDARD_8, { stringGroup: 'low', maxFrets: 12, limit: 8 });
+    expect(shapes.length).toBeGreaterThan(0);
+    for (const shape of shapes) {
+      for (const pos of shape.positions) expect(pos.string).toBeLessThanOrEqual(3);
+    }
   });
 });
