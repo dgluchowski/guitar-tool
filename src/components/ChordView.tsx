@@ -8,7 +8,7 @@ import {
   type StringGroup,
   type VoicingStyle,
 } from '../utils/engine';
-import { noteAtFret } from '../utils/notes';
+import { noteAtFret, prefersFlatKey, spellChordSymbol, spellPitchClass, tuningUsesFlats } from '../utils/notes';
 import { colorForDegree } from '../utils/colors';
 import { playChord, stopAll } from '../utils/audio';
 
@@ -63,6 +63,8 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
   const [marker, setMarker] = useState<MarkerMode>('degree');
 
   const noteSet = useMemo(() => notesForChord(chordSymbol), [chordSymbol]);
+  const flats = prefersFlatKey(noteSet.root) || tuningUsesFlats(tuning);
+  const spell = (pc: string) => spellPitchClass(pc, flats);
   const buckets = useMemo(
     () => findChordShapesByPosition(chordSymbol, tuning, { maxFrets: numFrets, voicingStyle, stringGroup }),
     [chordSymbol, tuning, numFrets, voicingStyle, stringGroup],
@@ -99,13 +101,13 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
     setSelected(shapes.length ? 0 : null);
   }
 
-  const highlightedNotes: HighlightMap = useMemo(() => {
-    const map: HighlightMap = {};
-    for (const p of noteSet.pitches) {
-      map[p.pc] = { color: colorForDegree(p.degree), label: marker === 'note' ? p.pc : p.degree };
-    }
-    return map;
-  }, [noteSet, marker]);
+  const highlightedNotes: HighlightMap = {};
+  for (const p of noteSet.pitches) {
+    highlightedNotes[p.pc] = {
+      color: colorForDegree(p.degree),
+      label: marker === 'note' ? spell(p.pc) : p.degree,
+    };
+  }
 
   const showing = selected != null && shapes[selected];
 
@@ -113,7 +115,7 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
     ? shapes[selected].positions.map((p) => {
         const finger = shapes[selected].fingerMap[p.string];
         const label =
-          marker === 'note' ? p.pc : marker === 'finger' ? (finger == null ? '0' : String(finger)) : p.degree;
+          marker === 'note' ? spell(p.pc) : marker === 'finger' ? (finger == null ? '0' : String(finger)) : p.degree;
         return {
           string: p.string,
           fret: p.fret,
@@ -149,8 +151,8 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
   return (
     <div className="stack">
       <div className="toolbar">
-        <span className="title">{noteSet.name}</span>
-        <span className="muted">{noteSet.pitches.map((p) => p.pc).join(' · ')}</span>
+        <span className="title">{spellChordSymbol(noteSet.name, flats)}</span>
+        <span className="muted">{noteSet.pitches.map((p) => spell(p.pc)).join(' · ')}</span>
         <button type="button" onClick={playSelectedShape} className="btn btn-primary">
           ▶ Play
         </button>
@@ -175,6 +177,11 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
           numFrets={numFrets}
           fretRange={[0, numFrets]}
           leftHanded={leftHanded}
+          spellFlats={flats}
+          onCellClick={(_stringIndex, _fret, note) => {
+            stopAll();
+            void playChord([note], '8n');
+          }}
           highlightedNotes={showing ? undefined : highlightedNotes}
           positions={positions}
           mutedStrings={mutedStrings}
@@ -184,7 +191,7 @@ export function ChordView({ chordSymbol, tuning, leftHanded, numFrets }: Props) 
           {noteSet.pitches.map((p) => (
             <span key={p.pc} className="legend-item">
               <span className="swatch" style={{ background: colorForDegree(p.degree) }} />
-              {p.pc} <span className="faint">({p.degree})</span>
+              {spell(p.pc)} <span className="faint">({p.degree})</span>
             </span>
           ))}
         </div>

@@ -8,10 +8,8 @@ const Dictionary = lazy(() => import('./components/Dictionary'));
 const Progressions = lazy(() => import('./components/Progressions'));
 const Genres = lazy(() => import('./components/Genres'));
 const Practice = lazy(() => import('./components/Practice'));
-import { DEFAULT_STATE, decodeState, encodeState } from './utils/appState';
+import { DEFAULT_STATE, FRET_COUNTS, decodeState, encodeState } from './utils/appState';
 import type { AppState, View } from './utils/appState';
-
-const MAX_FRETS = 15;
 const TABS: { id: View; label: string }[] = [
   { id: 'explore', label: 'Explore' },
   { id: 'dictionary', label: 'Dictionary' },
@@ -93,6 +91,21 @@ export default function App() {
             </div>
           </div>
           <div className="header-actions">
+            <label className="field-inline">
+              Frets
+              <select
+                value={state.numFrets}
+                onChange={(e) => update({ numFrets: Number(e.target.value) })}
+                className="control"
+                aria-label="Number of frets"
+              >
+                {FRET_COUNTS.map((count) => (
+                  <option key={count} value={count}>
+                    {count}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               type="button"
               onClick={() => update({ leftHanded: !state.leftHanded })}
@@ -147,7 +160,7 @@ export default function App() {
             scaleType={state.scaleType}
             tuning={state.tuning}
             leftHanded={state.leftHanded}
-            numFrets={MAX_FRETS}
+            numFrets={state.numFrets}
             onChange={update}
           />
         )}
@@ -158,7 +171,7 @@ export default function App() {
             quality={state.quality}
             tuning={state.tuning}
             leftHanded={state.leftHanded}
-            numFrets={MAX_FRETS}
+            numFrets={state.numFrets}
             keyTonic={state.keyTonic}
             keyMode={state.keyMode}
             onSelectChord={selectChord}
@@ -170,7 +183,7 @@ export default function App() {
           <Genres
             tuning={state.tuning}
             leftHanded={state.leftHanded}
-            numFrets={MAX_FRETS}
+            numFrets={state.numFrets}
             onUseTuning={(strings) => update({ tuning: strings, custom: false })}
             onOpenChord={(symbol) => {
               const { root, quality } = splitChordSymbol(symbol);
@@ -191,14 +204,14 @@ export default function App() {
         )}
 
         {state.view === 'practice' && (
-          <Practice tuning={state.tuning} leftHanded={state.leftHanded} numFrets={MAX_FRETS} />
+          <Practice tuning={state.tuning} leftHanded={state.leftHanded} numFrets={state.numFrets} />
         )}
 
         {state.view === 'progressions' && (
           <Progressions
             tuning={state.tuning}
             leftHanded={state.leftHanded}
-            numFrets={MAX_FRETS}
+            numFrets={state.numFrets}
             keyTonic={state.keyTonic}
             keyMode={state.keyMode}
             progression={state.progression}

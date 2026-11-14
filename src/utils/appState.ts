@@ -3,7 +3,10 @@ import { DEFAULT_TUNING } from './notes';
 import type { KeyMode } from './keys';
 
 export type View = 'explore' | 'dictionary' | 'progressions' | 'genres' | 'practice';
-export type SelectionMode = 'chord' | 'scale';
+export type SelectionMode = 'chord' | 'scale' | 'identify';
+
+/** Fret counts the neck selector offers. 15 is the default. */
+export const FRET_COUNTS = [15, 19, 22, 24] as const;
 
 export interface AppState {
   view: View;
@@ -18,6 +21,8 @@ export interface AppState {
   keyMode: KeyMode;
   /** Roman numerals, e.g. ["I","V","vi","IV"]. */
   progression: string[];
+  /** Frets drawn on the neck. One of 15, 19, 22, 24. */
+  numFrets: number;
 }
 
 export const DEFAULT_STATE: AppState = {
@@ -32,6 +37,7 @@ export const DEFAULT_STATE: AppState = {
   keyTonic: 'C',
   keyMode: 'major',
   progression: ['I', 'V', 'vi', 'IV'],
+  numFrets: 15,
 };
 
 /** Serialize state into a URL hash query string. */
@@ -47,6 +53,7 @@ export function encodeState(s: AppState): string {
   p.set('kt', s.keyTonic);
   p.set('km', s.keyMode);
   p.set('p', s.progression.join('-'));
+  if (s.numFrets !== 15) p.set('nf', String(s.numFrets));
   return p.toString();
 }
 
@@ -68,7 +75,7 @@ export function decodeState(hash: string): Partial<AppState> {
   }
   if (p.get('lh') === '1') out.leftHanded = true;
   const m = p.get('m');
-  if (m === 'chord' || m === 'scale') out.mode = m;
+  if (m === 'chord' || m === 'scale' || m === 'identify') out.mode = m;
   const root = p.get('r');
   if (root) {
     const spelled = canonicalRoot(root);
@@ -85,5 +92,7 @@ export function decodeState(hash: string): Partial<AppState> {
   if (km === 'major' || km === 'minor') out.keyMode = km;
   const prog = p.get('p');
   if (prog) out.progression = prog.split('-').filter(Boolean);
+  const nf = Number(p.get('nf'));
+  if (nf === 15 || nf === 19 || nf === 22 || nf === 24) out.numFrets = nf;
   return out;
 }

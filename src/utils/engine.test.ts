@@ -7,6 +7,7 @@ import {
   findChordShapes,
   findChordShapesByPosition,
   neckZones,
+  selectProgressionVoicings,
   type ChordShape,
 } from './engine';
 
@@ -262,6 +263,22 @@ describe('voicing style and string register', () => {
     const fours = findChordShapes('G7', STANDARD, { voicingStyle: 'drop2', maxFrets: 12, limit: 8 });
     expect(fours.length).toBeGreaterThan(0);
     for (const shape of fours) expect(shape.positions).toHaveLength(4);
+  });
+
+  it('voice-leads a progression inside the chosen neck zone', () => {
+    const open = selectProgressionVoicings(['C', 'G', 'Am', 'F'], STANDARD, 15, 'open');
+    expect(open.every((shape) => shape != null)).toBe(true);
+    for (const shape of open) {
+      for (const pos of shape!.positions) {
+        expect(pos.fret === 0 || (pos.fret >= 0 && pos.fret <= 4)).toBe(true);
+      }
+    }
+
+    const smooth = selectProgressionVoicings(['C', 'F', 'G', 'C'], STANDARD, 15, 'smooth');
+    for (let i = 1; i < smooth.length; i++) {
+      expect(smooth[i]).not.toBeNull();
+      expect(Math.abs(smooth[i]!.baseFret - smooth[i - 1]!.baseFret)).toBeLessThanOrEqual(7);
+    }
   });
 
   it('keeps a low-string filter on the bottom of an 8-string tuning', () => {

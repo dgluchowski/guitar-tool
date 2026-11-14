@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { findTuningPreset, frequencyToNote, midiOf, noteToFrequency, TUNINGS } from './notes';
+import {
+  findTuningPreset,
+  frequencyToNote,
+  midiOf,
+  noteToFrequency,
+  prefersFlatKey,
+  spellChordSymbol,
+  spellPitchClass,
+  tuningUsesFlats,
+  TUNINGS,
+} from './notes';
 
 describe('frequencyToNote', () => {
   it('maps A4 = 440Hz to A4 with 0 cents', () => {
@@ -69,5 +79,25 @@ describe('extended-range tunings', () => {
   it('recognises a preset when the pitches and octaves match', () => {
     expect(findTuningPreset(['B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'])?.id).toBe('standard-7');
     expect(findTuningPreset(['E1', 'B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'])?.id).toBe('drop-e');
+  });
+});
+
+describe('flat spelling', () => {
+  it('uses flats for F, Bb, Eb, Ab, and Db, including their sharp names', () => {
+    for (const root of ['F', 'Bb', 'A#', 'Eb', 'D#', 'Ab', 'G#', 'Db', 'C#']) {
+      expect(prefersFlatKey(root), root).toBe(true);
+    }
+    expect(prefersFlatKey('G')).toBe(false);
+    expect(prefersFlatKey('F#')).toBe(false);
+    expect(spellPitchClass('A#', true)).toBe('Bb');
+    expect(spellPitchClass('D#', true)).toBe('Eb');
+    expect(spellPitchClass('C#', true)).toBe('Db');
+    expect(spellPitchClass('F#', false)).toBe('F#');
+    expect(spellChordSymbol('A#maj7', true)).toBe('Bbmaj7');
+  });
+
+  it('treats a flat-spelled tuning as a flat board', () => {
+    expect(tuningUsesFlats(['Eb2', 'Ab2', 'Db3', 'Gb3', 'Bb3', 'Eb4'])).toBe(true);
+    expect(tuningUsesFlats(['E2', 'A2', 'D3', 'G3', 'B3', 'E4'])).toBe(false);
   });
 });
