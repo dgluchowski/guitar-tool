@@ -56,7 +56,7 @@ export function Genres({ tuning, leftHanded, numFrets, onUseTuning }: Props) {
 function UnverifiedBadge() {
   return (
     <span
-      className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+      className="badge"
       title="These musical claims have not been checked against sources yet."
     >
       Unverified
@@ -66,24 +66,20 @@ function UnverifiedBadge() {
 
 function GenreList({ onSelect }: { onSelect: (id: string) => void }) {
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-stone-500">
+    <div className="stack">
+      <p className="muted">
         Genre learning paths. Each path bundles relevant tunings, scales, voicings, progressions and
         bite-sized lessons.
       </p>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="card-grid">
         {GENRES.map((g) => (
-          <button
-            key={g.id}
-            onClick={() => onSelect(g.id)}
-            className="flex flex-col items-start gap-2 rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 text-left hover:border-violet-400 hover:shadow dark:border-stone-700 dark:bg-stone-800/50"
-          >
-            <div className="flex w-full items-center justify-between gap-2">
-              <span className="text-lg font-semibold">{g.name}</span>
+          <button key={g.id} type="button" onClick={() => onSelect(g.id)} className="genre-card">
+            <div className="row-between">
+              <span className="title">{g.name}</span>
               {!g.verified && <UnverifiedBadge />}
             </div>
-            <span className="text-sm text-stone-500">{g.blurb}</span>
-            <span className="mt-1 text-xs text-stone-400">{g.lessons.length} lessons</span>
+            <span className="muted">{g.blurb}</span>
+            <span className="faint small">{g.lessons.length} lessons</span>
           </button>
         ))}
       </div>
@@ -103,30 +99,27 @@ interface DetailProps {
 
 function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <button onClick={onBack} className="self-start text-sm text-violet-600 hover:underline dark:text-violet-400">
+    <div className="stack">
+      <button type="button" onClick={onBack} className="link">
         ← All genres
       </button>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-xl font-semibold">{genre.name}</h2>
+      <div className="toolbar">
+        <h2 className="title-xl">{genre.name}</h2>
         {!genre.verified && <UnverifiedBadge />}
       </div>
-      <p className="text-sm text-stone-500">{genre.blurb}</p>
+      <p className="muted">{genre.blurb}</p>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="card-grid">
         <Card title="Tunings">
-          <ul className="flex flex-col gap-2">
+          <ul className="list">
             {genre.tunings.map((t) => (
-              <li key={t.name} className="flex items-center justify-between gap-2 text-sm">
+              <li key={t.name} className="row-between">
                 <span>
-                  <span className="font-medium">{t.name}</span>{' '}
-                  <span className="font-mono text-xs text-stone-400">{t.strings.join(' ')}</span>
+                  <span className="strong">{t.name}</span>{' '}
+                  <span className="mono faint small">{t.strings.join(' ')}</span>
                 </span>
-                <button
-                  onClick={() => onUseTuning(t.strings, t.name)}
-                  className="rounded border border-stone-300 px-2 py-0.5 text-xs hover:bg-stone-50 dark:border-stone-600 dark:hover:bg-stone-800"
-                >
+                <button type="button" onClick={() => onUseTuning(t.strings, t.name)} className="btn btn-sm">
                   Use
                 </button>
               </li>
@@ -135,36 +128,31 @@ function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) 
         </Card>
 
         <Card title="Scales">
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="list">
             {genre.scales.map((s, i) => (
               <li key={i}>
-                <span className="font-medium">{s.root}</span> <span className="capitalize">{s.scaleType}</span>
+                <span className="strong">{s.root}</span> <span className="capitalize">{s.scaleType}</span>
               </li>
             ))}
           </ul>
         </Card>
 
         <Card title="Key voicings">
-          <ul className="flex flex-wrap gap-2 text-sm">
+          <ul className="chip-row">
             {genre.voicings.map((v, i) => (
-              <li key={i} className="rounded bg-stone-100 px-2 py-1 dark:bg-stone-800">
-                <span className="text-xs text-stone-400">{v.label}</span>{' '}
-                <span className="font-mono font-medium">{v.chordSymbol}</span>
+              <li key={i} className="pill">
+                <span className="faint small">{v.label}</span>
+                <span className="mono strong">{v.chordSymbol}</span>
               </li>
             ))}
           </ul>
         </Card>
 
         <Card title="Sources">
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="list">
             {genre.sources.map((source) => (
               <li key={source.url}>
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-violet-600 hover:underline dark:text-violet-400"
-                >
+                <a href={source.url} target="_blank" rel="noreferrer" className="link">
                   {source.title}
                 </a>
               </li>
@@ -173,31 +161,28 @@ function GenreDetail({ genre, onUseTuning, onOpenLesson, onBack }: DetailProps) 
         </Card>
 
         <Card title="Progressions">
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="list">
             {genre.progressions.map((p, i) => (
               <li key={i}>
-                <span className="font-medium">{p.name}</span>
-                <span className="ml-2 font-mono text-xs text-stone-400">{p.numerals.join(' – ')}</span>
+                <span className="strong">{p.name}</span>
+                <span className="mono faint small" style={{ marginLeft: '0.5rem' }}>
+                  {p.numerals.join(' – ')}
+                </span>
               </li>
             ))}
           </ul>
         </Card>
       </div>
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 dark:border-stone-700 dark:bg-stone-800/50">
-        <div className="mb-3 text-sm font-medium">Lessons</div>
-        <ol className="flex flex-col gap-2">
+      <div className="panel">
+        <div className="panel-title">Lessons</div>
+        <ol className="list">
           {genre.lessons.map((l, i) => (
             <li key={l.id}>
-              <button
-                onClick={() => onOpenLesson(l.id)}
-                className="flex w-full items-center gap-3 rounded-xl border border-stone-200/80 shadow-sm px-3 py-2 text-left hover:border-violet-400 dark:border-stone-700"
-              >
-                <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-stone-100 text-xs font-medium dark:bg-stone-800">
-                  {i + 1}
-                </span>
-                <span className="font-medium">{l.title}</span>
-                <span className="ml-auto text-xs uppercase text-stone-400">{l.content.kind}</span>
+              <button type="button" onClick={() => onOpenLesson(l.id)} className="lesson-row">
+                <span className="lesson-index">{i + 1}</span>
+                <span className="strong">{l.title}</span>
+                <span className="lesson-kind">{l.content.kind}</span>
               </button>
             </li>
           ))}
@@ -219,20 +204,20 @@ interface LessonProps {
 
 function LessonView({ genre, lesson, tuning, leftHanded, numFrets, onUseTuning, onBack }: LessonProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <button onClick={onBack} className="self-start text-sm text-violet-600 hover:underline dark:text-violet-400">
+    <div className="stack">
+      <button type="button" onClick={onBack} className="link">
         ← {genre.name} lessons
       </button>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-xl font-semibold">{lesson.title}</h2>
+      <div className="toolbar">
+        <h2 className="title-xl">{lesson.title}</h2>
         {!genre.verified && <UnverifiedBadge />}
       </div>
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 dark:border-stone-700 dark:bg-stone-800/50">
-        <p className="text-sm leading-relaxed">{lesson.explainer}</p>
-        <div className="mt-3 rounded bg-stone-50 p-3 text-sm dark:bg-stone-800">
-          <span className="font-medium">Practice: </span>
+      <div className="panel">
+        <p className="prose">{lesson.explainer}</p>
+        <div className="practice-box">
+          <span className="strong">Practice: </span>
           {lesson.practice}
         </div>
       </div>
@@ -276,28 +261,27 @@ function LessonContentView({
       );
     case 'progression':
       return (
-        <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 dark:border-stone-700 dark:bg-stone-800/50">
+        <div className="panel">
           <ProgressionPlayer numerals={content.numerals} keyTonic={content.keyTonic} keyMode={content.keyMode} />
         </div>
       );
     case 'tuning': {
       const active = tuning.join(',') === content.strings.join(',');
       return (
-        <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 dark:border-stone-700 dark:bg-stone-800/50">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-medium">{content.name}</span>
-            <span className="font-mono text-sm text-stone-400">{content.strings.join(' ')}</span>
+        <div className="panel">
+          <div className="toolbar">
+            <span className="strong">{content.name}</span>
+            <span className="mono faint">{content.strings.join(' ')}</span>
             <button
+              type="button"
               disabled={active}
               onClick={() => onUseTuning(content.strings, content.name)}
-              className="rounded-lg shadow-sm transition-colors bg-violet-600 px-3 py-1 text-sm font-medium text-white hover:bg-violet-700 disabled:cursor-default disabled:bg-stone-300 dark:disabled:bg-stone-700"
+              className="btn btn-primary"
             >
               {active ? '✓ In use' : 'Use this tuning'}
             </button>
           </div>
-          <p className="mt-2 text-xs text-stone-400">
-            Applying a tuning updates the fretboard everywhere in the app.
-          </p>
+          <p className="hint">Applying a tuning updates the fretboard everywhere in the app.</p>
         </div>
       );
     }
@@ -306,8 +290,8 @@ function LessonContentView({
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-stone-200/80 shadow-sm bg-white p-4 dark:border-stone-700 dark:bg-stone-800/50">
-      <div className="mb-2 text-sm font-medium">{title}</div>
+    <div className="panel">
+      <div className="panel-title">{title}</div>
       {children}
     </div>
   );

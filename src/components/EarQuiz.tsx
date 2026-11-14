@@ -66,50 +66,41 @@ export function EarQuiz({ make, storageKey }: Props) {
   const accuracy = total ? Math.round((score / total) * 100) : 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-4 gap-3 text-center">
+    <div className="stack">
+      <div className="stat-grid">
         <Stat label="Score" value={score} />
         <Stat label="Streak" value={streak} />
         <Stat label="Best" value={best} />
         <Stat label="Accuracy" value={`${accuracy}%`} />
       </div>
 
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-700 dark:bg-stone-800/50">
-        <button
-          onClick={() => playQuestion(question)}
-          className="rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-violet-700"
-        >
+      <div className="panel center">
+        <button type="button" onClick={() => playQuestion(question)} className="btn btn-primary">
           ▶ Play
         </button>
-        <p className="text-sm text-stone-500">Listen, then pick your answer.</p>
+        <p className="muted">Listen, then pick your answer.</p>
 
-        <div className="flex w-full max-w-md flex-wrap justify-center gap-2">
+        <div className="chip-row" style={{ justifyContent: 'center', width: '100%' }}>
           {question.choices.map((c, i) => {
             const isAnswer = i === question.answerIndex;
             const isPicked = picked === i;
-            let cls =
-              'border-stone-300 hover:bg-stone-50 dark:border-stone-600 dark:hover:bg-stone-800';
+            let cls = 'chip';
             if (picked != null) {
-              if (isAnswer) cls = 'border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300';
-              else if (isPicked) cls = 'border-red-500 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300';
-              else cls = 'border-stone-200 text-stone-400 dark:border-stone-700';
+              if (isAnswer) cls = 'chip choice is-correct';
+              else if (isPicked) cls = 'chip choice is-wrong';
+              else cls = 'chip choice is-dim';
             }
             return (
-              <button
-                key={c}
-                disabled={picked != null}
-                onClick={() => answer(i)}
-                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${cls}`}
-              >
+              <button key={c} type="button" disabled={picked != null} onClick={() => answer(i)} className={cls}>
                 {c}
               </button>
             );
           })}
         </div>
 
-        <div className="min-h-6 text-center text-sm" aria-live="polite">
+        <div style={{ minHeight: '1.5rem' }} aria-live="polite">
           {picked != null && (
-            <span className={correct ? 'font-medium text-green-600 dark:text-green-400' : 'text-stone-600 dark:text-stone-300'}>
+            <span className={correct ? 'ok-text' : undefined}>
               {correct ? 'Correct! ' : 'Not quite — '}
               {question.reveal}
             </span>
@@ -117,10 +108,7 @@ export function EarQuiz({ make, storageKey }: Props) {
         </div>
 
         {picked != null && (
-          <button
-            onClick={next}
-            className="rounded-lg border border-stone-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-stone-50 dark:border-stone-600 dark:hover:bg-stone-800"
-          >
+          <button type="button" onClick={next} className="btn">
             Next →
           </button>
         )}
@@ -131,9 +119,9 @@ export function EarQuiz({ make, storageKey }: Props) {
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-sm dark:border-stone-700 dark:bg-stone-800/50">
-      <div className="text-2xl font-bold tabular-nums">{value}</div>
-      <div className="text-xs text-stone-400">{label}</div>
+    <div className="stat">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
 }

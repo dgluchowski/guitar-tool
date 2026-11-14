@@ -68,37 +68,35 @@ export function ProgressionPlayer({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="stack-sm">
+      <div className="toolbar">
         {isPlaying ? (
-          <button onClick={stop} className="rounded-lg shadow-sm transition-colors bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700">
+          <button type="button" onClick={stop} className="btn btn-danger">
             ■ Stop
           </button>
         ) : (
-          <button onClick={play} className="rounded-lg shadow-sm transition-colors bg-violet-600 px-3 py-1 text-sm font-medium text-white hover:bg-violet-700">
+          <button type="button" onClick={play} className="btn btn-primary">
             ▶ Play
           </button>
         )}
-        <label className="flex items-center gap-2 text-sm">
+        <label className="field-inline">
           Tempo
           <input type="range" min={40} max={200} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} />
-          <span className="w-12 tabular-nums">{bpm} bpm</span>
+          <span className="mono bpm">{bpm} bpm</span>
         </label>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="chip-row">
         {numerals.map((rn, i) => (
           <button
             key={i}
+            type="button"
             onClick={() => onSelectChord?.(chords[i])}
-            className={`flex flex-col items-center rounded-lg border px-3 py-2 ${
-              playingIndex === i
-                ? 'border-violet-500 bg-violet-50 dark:bg-violet-950'
-                : 'border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800'
-            }`}
+            className="chip"
+            aria-pressed={playingIndex === i}
           >
-            <span className="font-mono text-xs text-stone-400">{rn}</span>
-            <span className="font-medium text-violet-600 dark:text-violet-400">{chords[i] || '?'}</span>
+            <span className="mono faint small">{rn}</span>
+            <span>{chords[i] || '?'}</span>
           </button>
         ))}
       </div>

@@ -44,27 +44,26 @@ export function ScaleView({ root, scaleType, tuning, leftHanded, numFrets }: Pro
   };
 
   if (!noteSet.pitches.length) {
-    return <div className="text-sm text-red-500">Unknown scale: {root} {scaleType}</div>;
+    return (
+      <div className="alert">
+        Unknown scale: {root} {scaleType}
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-lg font-semibold capitalize">{noteSet.name}</span>
-        <span className="text-sm text-stone-500">{noteSet.pitches.map((p) => p.pc).join(' · ')}</span>
-        <button
-          onClick={playScale}
-          className="rounded-lg shadow-sm transition-colors bg-violet-600 px-3 py-1 text-sm font-medium text-white hover:bg-violet-700"
-        >
+    <div className="stack">
+      <div className="toolbar">
+        <span className="title capitalize">
+          {noteSet.name}
+        </span>
+        <span className="muted">{noteSet.pitches.map((p) => p.pc).join(' · ')}</span>
+        <button type="button" onClick={playScale} className="btn btn-primary">
           ▶ Play scale
         </button>
-        <label className="ml-auto flex items-center gap-2 text-sm">
+        <label className="field-inline ml-auto">
           Position
-          <select
-            value={posIdx}
-            onChange={(e) => setPosIdx(Number(e.target.value))}
-            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1"
-          >
+          <select value={posIdx} onChange={(e) => setPosIdx(Number(e.target.value))} className="control">
             {POSITIONS.map((p, i) => (
               <option key={p.label} value={i}>
                 {p.label}
@@ -74,7 +73,7 @@ export function ScaleView({ root, scaleType, tuning, leftHanded, numFrets }: Pro
         </label>
       </div>
 
-      <div className="rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
+      <div className="panel">
         <Fretboard
           tuning={tuning}
           numFrets={numFrets}
@@ -83,11 +82,11 @@ export function ScaleView({ root, scaleType, tuning, leftHanded, numFrets }: Pro
           highlightedNotes={highlightedNotes}
           showAllNotes
         />
-        <div className="mt-3 flex flex-wrap gap-3 text-xs">
+        <div className="legend">
           {noteSet.pitches.map((p) => (
-            <span key={p.pc} className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded-full" style={{ background: colorForDegree(p.degree) }} />
-              {p.pc} <span className="text-stone-400">({p.degree})</span>
+            <span key={p.pc} className="legend-item">
+              <span className="swatch" style={{ background: colorForDegree(p.degree) }} />
+              {p.pc} <span className="faint">({p.degree})</span>
             </span>
           ))}
         </div>

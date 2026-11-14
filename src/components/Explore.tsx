@@ -23,30 +23,19 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
   }, [mode, root, quality, scaleType]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-4 rounded-xl border border-stone-200/80 shadow-sm dark:border-stone-700 bg-white dark:bg-stone-800/50 p-4">
-        <div className="flex gap-1 rounded-lg bg-stone-100 dark:bg-stone-800 p-1">
+    <div className="stack">
+      <div className="panel control-row">
+        <div className="seg">
           {(['chord', 'scale'] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => onChange({ mode: m })}
-              aria-pressed={mode === m}
-              className={`rounded px-3 py-1 text-sm capitalize ${
-                mode === m ? 'bg-white dark:bg-stone-700 shadow font-medium' : 'text-stone-500'
-              }`}
-            >
+            <button key={m} type="button" onClick={() => onChange({ mode: m })} aria-pressed={mode === m}>
               {m}
             </button>
           ))}
         </div>
 
-        <label className="flex flex-col gap-1 text-xs font-medium text-stone-500">
+        <label className="field">
           Root
-          <select
-            value={root}
-            onChange={(e) => onChange({ root: e.target.value })}
-            className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-sm text-stone-900 dark:text-stone-100"
-          >
+          <select value={root} onChange={(e) => onChange({ root: e.target.value })} className="control">
             {ROOTS.map((r) => (
               <option key={r} value={r}>
                 {r}
@@ -56,13 +45,9 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
         </label>
 
         {mode === 'chord' ? (
-          <label className="flex flex-col gap-1 text-xs font-medium text-stone-500">
+          <label className="field">
             Quality
-            <select
-              value={quality}
-              onChange={(e) => onChange({ quality: e.target.value })}
-              className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-sm text-stone-900 dark:text-stone-100"
-            >
+            <select value={quality} onChange={(e) => onChange({ quality: e.target.value })} className="control">
               {CHORD_QUALITIES.map((q) => (
                 <option key={q.label} value={q.suffix}>
                   {q.label}
@@ -71,12 +56,12 @@ export function Explore({ mode, root, quality, scaleType, tuning, leftHanded, nu
             </select>
           </label>
         ) : (
-          <label className="flex flex-col gap-1 text-xs font-medium text-stone-500">
+          <label className="field">
             Scale
             <select
               value={scaleType}
               onChange={(e) => onChange({ scaleType: e.target.value })}
-              className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-sm capitalize text-stone-900 dark:text-stone-100"
+              className="control capitalize"
             >
               {SCALE_TYPES.map((s) => (
                 <option key={s} value={s}>
