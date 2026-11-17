@@ -67,3 +67,7 @@ public/             favicon and PWA icons
 scripts/            icon generator
 .github/workflows/  test, build, and GitHub Pages deploy
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
